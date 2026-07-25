@@ -1,7 +1,7 @@
 import { Category, ContactSubmission, FAQItem, Game, GameSubmission, NetworkAd, SiteSettings, Sponsor, SponsorAd, UpcomingGame } from '../types';
 
 export const INITIAL_SETTINGS: SiteSettings = {
-  websiteName: 'GAMES TONIC',
+  websiteName: 'TONIC GAMES',
   logoUrl: '',
   faviconUrl: '',
   heroTitle: 'ENTER THE ULTIMATE HTML5 GAMING REALM',
@@ -10,7 +10,7 @@ export const INITIAL_SETTINGS: SiteSettings = {
   heroButtonText: 'EXPLORE TRENDING GAMES',
   heroButtonLink: '#trending',
   heroVisible: true,
-  footerText: '© 2026 GAMES TONIC. All rights reserved.',
+  footerText: '© 2026 TONIC GAMES. All rights reserved.',
   socialTwitter: 'https://twitter.com',
   socialDiscord: 'https://discord.gg',
   socialYoutube: 'https://youtube.com',
@@ -22,7 +22,7 @@ export const INITIAL_SETTINGS: SiteSettings = {
     { id: 'soc-4', platform: 'telegram', title: 'Telegram Group', url: 'https://t.me' },
     { id: 'soc-5', platform: 'instagram', title: 'Instagram', url: 'https://instagram.com' },
   ],
-  rateButtonText: '⭐ Rate Games Tonic',
+  rateButtonText: '⭐ Rate Tonic Games',
   rateButtonLink: 'https://trustpilot.com',
   submissionButtonLink: '/submission',
   contactButtonLink: '/contact',

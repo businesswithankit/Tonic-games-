@@ -25,7 +25,7 @@ export const PrivacyPolicyPage: React.FC<PageProps> = ({ settings, onBack }) => 
         </div>
         <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">Privacy Policy</h1>
         <p className="text-xs text-slate-400">
-          Last Updated: February 2026 • Official Privacy Guidelines for {settings.websiteName || 'GAMES TONIC'}
+          Last Updated: February 2026 • Official Privacy Guidelines for {settings.websiteName || 'TONIC GAMES'}
         </p>
       </div>
 
@@ -36,7 +36,7 @@ export const PrivacyPolicyPage: React.FC<PageProps> = ({ settings, onBack }) => 
             1. Information Collection & Use
           </h2>
           <p>
-            {settings.websiteName || 'GAMES TONIC'} operates as an HTML5 gaming portal. We do not require public user account creation or registration to play games. We prioritize user anonymity and privacy.
+            {settings.websiteName || 'TONIC GAMES'} operates as an HTML5 gaming portal. We do not require public user account creation or registration to play games. We prioritize user anonymity and privacy.
           </p>
         </section>
 

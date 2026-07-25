@@ -25,7 +25,7 @@ export const TermsPage: React.FC<PageProps> = ({ settings, onBack }) => {
         </div>
         <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">Terms & Conditions</h1>
         <p className="text-xs text-slate-400">
-          Last Updated: February 2026 • Usage Conditions for {settings.websiteName || 'GAMES TONIC'}
+          Last Updated: February 2026 • Usage Conditions for {settings.websiteName || 'TONIC GAMES'}
         </p>
       </div>
 
@@ -36,7 +36,7 @@ export const TermsPage: React.FC<PageProps> = ({ settings, onBack }) => {
             1. Acceptance of Terms
           </h2>
           <p>
-            By accessing and playing games on {settings.websiteName || 'GAMES TONIC'}, you agree to comply with these terms. All games are provided free of charge for personal entertainment.
+            By accessing and playing games on {settings.websiteName || 'TONIC GAMES'}, you agree to comply with these terms. All games are provided free of charge for personal entertainment.
           </p>
         </section>
 
@@ -46,7 +46,7 @@ export const TermsPage: React.FC<PageProps> = ({ settings, onBack }) => {
             2. External Game Hosting Disclaimer
           </h2>
           <p>
-            {settings.websiteName || 'GAMES TONIC'} does not store game executable binaries or proprietary assets on local servers. Each game runs via direct Play URLs provided by their respective copyright holders.
+            {settings.websiteName || 'TONIC GAMES'} does not store game executable binaries or proprietary assets on local servers. Each game runs via direct Play URLs provided by their respective copyright holders.
           </p>
         </section>
 

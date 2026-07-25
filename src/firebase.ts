@@ -371,11 +371,20 @@ export async function fetchSettingsFromStore(): Promise<SiteSettings> {
   const cached = getStorage<SiteSettings | null>('gt_site_settings', null);
   if (cached) {
     localSettings = { ...INITIAL_SETTINGS, ...cached };
+    if (!cached.websiteName || cached.websiteName === 'GAMES TONIC') {
+      localSettings.websiteName = 'TONIC GAMES';
+    }
+    if (!cached.footerText || cached.footerText === '© 2026 GAMES TONIC. All rights reserved.') {
+      localSettings.footerText = '© 2026 TONIC GAMES. All rights reserved.';
+    }
   }
   try {
     const docSnap = await getDoc(doc(db, 'settings', 'site'));
     if (docSnap.exists()) {
       localSettings = { ...INITIAL_SETTINGS, ...localSettings, ...(docSnap.data() as SiteSettings) };
+      if (localSettings.websiteName === 'GAMES TONIC') {
+        localSettings.websiteName = 'TONIC GAMES';
+      }
       setStorage('gt_site_settings', localSettings);
       return localSettings;
     }

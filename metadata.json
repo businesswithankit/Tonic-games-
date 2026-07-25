@@ -1,6 +1,6 @@
 {
-  "name": "Games Tonic Portal",
-  "description": "Complete Premium HTML5 Gaming Portal and Admin Management System",
+  "name": "TONIC GAMES",
+  "description": "TONIC GAMES - Free, instant web games directly in your browser with zero downloads",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
