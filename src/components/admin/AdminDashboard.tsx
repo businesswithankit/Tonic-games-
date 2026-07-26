@@ -1573,7 +1573,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
           )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
             <div>
               <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase">
                 Website Name
@@ -1601,6 +1601,31 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 placeholder="https://..."
                 className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white text-xs focus:outline-none focus:border-cyan-400"
               />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase flex items-center gap-2">
+                <span>Favicon Link / URL</span>
+                {siteSettingsForm.faviconUrl && (
+                  <img
+                    src={siteSettingsForm.faviconUrl}
+                    alt="Favicon preview"
+                    className="w-4 h-4 object-contain inline-block rounded"
+                  />
+                )}
+              </label>
+              <input
+                type="url"
+                value={siteSettingsForm.faviconUrl || ''}
+                onChange={(e) =>
+                  setSiteSettingsForm({ ...siteSettingsForm, faviconUrl: e.target.value })
+                }
+                placeholder="https://example.com/favicon.png"
+                className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white text-xs focus:outline-none focus:border-cyan-400"
+              />
+              <p className="text-[10px] text-slate-400 mt-1">
+                Direct URL to browser tab favicon (.ico, .png, or .svg).
+              </p>
             </div>
           </div>
 
