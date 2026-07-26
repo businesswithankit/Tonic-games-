@@ -76,7 +76,7 @@ export default function App() {
   const [submissions, setSubmissions] = useState<GameSubmission[]>([]);
   const [contacts, setContacts] = useState<ContactSubmission[]>([]);
   const [settings, setSettings] = useState<SiteSettings>({
-    websiteName: 'GAMES TONIC',
+    websiteName: 'TONIC GAMES',
     logoUrl: '',
     faviconUrl: '',
     heroTitle: 'ENTER THE ULTIMATE GAMING REALM',
@@ -87,12 +87,12 @@ export default function App() {
     heroButtonText: 'EXPLORE TRENDING GAMES',
     heroButtonLink: '#trending',
     heroVisible: true,
-    footerText: '© 2026 GAMES TONIC. All rights reserved.',
+    footerText: '© 2026 TONIC GAMES. All rights reserved.',
     socialTwitter: 'https://twitter.com',
     socialDiscord: 'https://discord.gg',
     socialYoutube: 'https://youtube.com',
     socialTelegram: 'https://t.me',
-    rateButtonText: '⭐ Rate Games Tonic',
+    rateButtonText: '⭐ Rate Tonic Games',
     rateButtonLink: 'https://trustpilot.com',
     submissionButtonLink: '/submission',
     contactButtonLink: '/contact',
@@ -394,7 +394,7 @@ export default function App() {
                 {/* Recently Added Games Section */}
                 <GameSection
                   title="Recently Added Games"
-                  subtitle="Fresh new HTML5 games added to the GAMES TONIC library."
+                  subtitle="Fresh new HTML5 games added to the TONIC GAMES library."
                   icon={Clock}
                   badgeText="NEW ARRIVALS"
                   badgeColor="purple"
