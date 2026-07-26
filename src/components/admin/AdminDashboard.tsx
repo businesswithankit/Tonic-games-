@@ -2307,11 +2307,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                 <div>
                   <label className="block text-xs font-bold text-slate-300 mb-1 uppercase">
-                    Pre-Register / Trailer Link
+                    Pre-Register Link
                   </label>
                   <input
                     type="url"
-                    placeholder="https://youtube.com/..."
+                    placeholder="https://example.com/preregister"
                     value={editingUpcoming.link || ''}
                     onChange={(e) => setEditingUpcoming({ ...editingUpcoming, link: e.target.value })}
                     className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-xs text-white"

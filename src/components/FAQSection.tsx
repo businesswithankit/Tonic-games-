@@ -22,7 +22,7 @@ export const FAQSection: React.FC<FAQSectionProps> = ({ faqs }) => {
           Frequently Asked Questions
         </h2>
         <p className="text-xs sm:text-sm text-slate-400">
-          Everything you need to know about playing free HTML5 games on GAMES TONIC.
+          Everything you need to know about playing free HTML5 games on TONIC GAMES.
         </p>
       </div>
 
