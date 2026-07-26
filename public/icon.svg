@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#080a10" />
+      <stop offset="100%" stop-color="#050608" />
+    </linearGradient>
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a855f7" />
+      <stop offset="50%" stop-color="#06b6d4" />
+      <stop offset="100%" stop-color="#ec4899" />
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#06b6d4" />
+      <stop offset="100%" stop-color="#3b82f6" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="100" fill="url(#bgGrad)"/>
+  
+  <!-- Outer Glow Border -->
+  <rect x="16" y="16" width="480" height="480" rx="84" fill="none" stroke="url(#primaryGrad)" stroke-width="8" opacity="0.8"/>
+
+  <!-- Controller Base Body -->
+  <g transform="translate(0,0)">
+    <path d="M 140 180 
+             C 180 170, 332 170, 372 180 
+             C 420 190, 440 260, 420 330 
+             C 410 365, 375 380, 345 350 
+             L 310 315 
+             C 290 295, 222 295, 202 315 
+             L 167 350 
+             C 137 380, 102 365, 92 330 
+             C 72 260, 92 190, 140 180 Z" 
+          fill="#111625" stroke="url(#primaryGrad)" stroke-width="12" stroke-linejoin="round" />
+
+    <!-- D-Pad -->
+    <path d="M 160 215 h 20 v 20 h 20 v 20 h -20 v 20 h -20 v -20 h -20 v -20 h 20 z" fill="url(#accentGrad)" />
+
+    <!-- Action Buttons -->
+    <circle cx="350" cy="225" r="12" fill="#ec4899" />
+    <circle cx="325" cy="250" r="12" fill="#06b6d4" />
+    <circle cx="375" cy="250" r="12" fill="#a855f7" />
+    <circle cx="350" cy="275" r="12" fill="#10b981" />
+
+    <!-- Center Branding Glow Line -->
+    <rect x="236" y="220" width="40" height="8" rx="4" fill="#06b6d4" />
+    <rect x="236" y="236" width="40" height="8" rx="4" fill="#a855f7" />
+  </g>
+</svg>

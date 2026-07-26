@@ -1,0 +1,31 @@
+{
+  "short_name": "TONIC GAMES",
+  "name": "TONIC GAMES - Free HTML5 Games",
+  "description": "Play free, instant web games directly in your browser with zero downloads.",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#06070a",
+  "theme_color": "#06070a",
+  "display": "standalone",
+  "orientation": "any",
+  "categories": ["games", "entertainment"]
+}

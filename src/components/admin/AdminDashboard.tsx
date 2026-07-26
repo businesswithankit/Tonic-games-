@@ -823,7 +823,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <span>Upcoming Games Area</span>
               </h2>
               <p className="text-xs text-slate-400 mt-1">
-                Manage upcoming title announcements, expected release dates, weights, descriptions, features, and pre-register trailer links.
+                Manage upcoming title announcements, expected release dates, weights, descriptions, features, and website links.
               </p>
             </div>
 
@@ -2307,11 +2307,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                 <div>
                   <label className="block text-xs font-bold text-slate-300 mb-1 uppercase">
-                    Pre-Register Link
+                    Website Link
                   </label>
                   <input
                     type="url"
-                    placeholder="https://example.com/preregister"
+                    placeholder="https://example.com"
                     value={editingUpcoming.link || ''}
                     onChange={(e) => setEditingUpcoming({ ...editingUpcoming, link: e.target.value })}
                     className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-xs text-white"

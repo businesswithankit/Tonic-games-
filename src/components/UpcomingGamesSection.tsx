@@ -24,7 +24,7 @@ export const UpcomingGamesSection: React.FC<UpcomingGamesSectionProps> = ({ upco
             <span>Upcoming Releases & Exclusives</span>
           </h2>
           <p className="text-xs text-slate-400">
-            Preview upcoming web games currently in development. Pre-register for early updates!
+            Preview upcoming web games currently in development.
           </p>
         </div>
 
@@ -112,12 +112,12 @@ export const UpcomingGamesSection: React.FC<UpcomingGamesSectionProps> = ({ upco
                   rel="noopener noreferrer"
                   className="px-4 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold text-xs flex items-center gap-1.5 hover:scale-105 transition-all shadow-md shadow-pink-500/20 cursor-pointer"
                 >
-                  <span>Pre-Register</span>
+                  <span>Official Site</span>
                   <ExternalLink className="w-3.5 h-3.5" />
                 </a>
               ) : (
                 <span className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-slate-400 text-xs font-bold font-mono">
-                  Wishlist Soon
+                  Coming Soon
                 </span>
               )}
             </div>
