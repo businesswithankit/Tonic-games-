@@ -309,7 +309,7 @@ export default function App() {
                       </button>
                     </div>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 sm:gap-3.5">
                       {recentlyPlayedList.slice(0, 6).map((item) => (
                         <div
                           key={item.id}
@@ -337,14 +337,14 @@ export default function App() {
                                 updatedTime: new Date().toISOString(),
                               });
                           }}
-                          className="group relative cursor-pointer overflow-hidden rounded-xl bg-[#121422] border border-white/10 p-2 hover:border-pink-500/50 hover:shadow-[0_0_15px_rgba(236,72,153,0.3)] transition-all"
+                          className="group relative cursor-pointer overflow-hidden rounded-xl bg-[#0c0d16] border border-white/10 p-1.5 hover:border-pink-500/50 hover:shadow-[0_0_15px_rgba(236,72,153,0.3)] transition-all"
                         >
                           <img
                             src={item.thumbnail}
                             alt={item.title}
-                            className="w-full aspect-video object-cover rounded-lg group-hover:scale-105 transition-transform"
+                            className="w-full aspect-[4/3] object-cover rounded-lg group-hover:scale-105 transition-transform"
                           />
-                          <p className="text-xs font-bold text-white truncate mt-2 group-hover:text-pink-300">
+                          <p className="text-xs font-bold text-white truncate mt-1.5 group-hover:text-pink-300">
                             {item.title}
                           </p>
                         </div>

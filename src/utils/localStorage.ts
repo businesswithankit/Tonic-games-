@@ -2,6 +2,43 @@ import { Game, RecentPlayItem } from '../types';
 
 const RECENTLY_PLAYED_KEY = 'games_tonic_recently_played';
 const RECENT_SEARCHES_KEY = 'games_tonic_recent_searches';
+const FAVORITES_KEY = 'games_tonic_favorites';
+
+export const getFavorites = (): string[] => {
+  try {
+    const data = localStorage.getItem(FAVORITES_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch (e) {
+    console.error('Failed to parse favorite games', e);
+    return [];
+  }
+};
+
+export const isGameFavorite = (gameId: string): boolean => {
+  const favorites = getFavorites();
+  return favorites.includes(gameId);
+};
+
+export const toggleFavoriteGame = (gameId: string): boolean => {
+  try {
+    const favorites = getFavorites();
+    let updated: string[];
+    let isFav = false;
+    if (favorites.includes(gameId)) {
+      updated = favorites.filter((id) => id !== gameId);
+      isFav = false;
+    } else {
+      updated = [gameId, ...favorites];
+      isFav = true;
+    }
+    localStorage.setItem(FAVORITES_KEY, JSON.stringify(updated));
+    return isFav;
+  } catch (e) {
+    console.error('Failed to toggle favorite game', e);
+    return false;
+  }
+};
+
 
 export const getRecentlyPlayed = (): RecentPlayItem[] => {
   try {
