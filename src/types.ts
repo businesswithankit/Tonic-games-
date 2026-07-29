@@ -22,6 +22,7 @@ export interface Game {
   aiPromptUsed?: string;
   platforms?: string[];
   tags?: string[];
+  developerWebsite?: string;
 }
 
 export interface Category {
@@ -175,10 +176,10 @@ export interface GameSubmission {
   id: string;
   gameTitle: string;
   version?: string;
-  weight: string;
+  weight?: string;
   features?: string[];
   developerName: string;
-  contactEmail: string;
+  contactEmail?: string;
   category: string;
   playUrl: string;
   thumbnailUrl: string;
@@ -190,4 +191,5 @@ export interface GameSubmission {
   aiPromptUsed?: string;
   platforms?: string[];
   tags?: string[];
+  developerWebsite?: string;
 }
