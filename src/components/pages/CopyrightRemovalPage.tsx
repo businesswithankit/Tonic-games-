@@ -28,7 +28,7 @@ export const CopyrightRemovalPage: React.FC<PageProps> = ({
   onNavigate,
   onRefreshData,
 }) => {
-  const customContent = settings.copyrightRemovalContent;
+  const siteName = settings.websiteName || 'GAMES TONIC';
 
   const [form, setForm] = useState({
     fullName: '',
@@ -63,7 +63,7 @@ export const CopyrightRemovalPage: React.FC<PageProps> = ({
 INFRACTING DETAILS & STATEMENT:
 ${form.details}
 
-Good Faith Statement: Verified under penalty of perjury.`,
+Good Faith Affirmation: Verified under penalty of perjury.`,
         createdAt: new Date().toISOString(),
       });
 
@@ -96,33 +96,28 @@ Good Faith Statement: Verified under penalty of perjury.`,
       <div className="space-y-4 border-b border-white/10 pb-8">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-500/10 border border-pink-500/30 text-pink-300 text-xs font-bold uppercase tracking-wider">
           <FileX className="w-4 h-4 text-pink-400" />
-          <span>Copyright Removal Notice Form</span>
+          <span>Official Removal Request Form</span>
         </div>
         <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
           Copyright Removal Request
         </h1>
         <p className="text-sm sm:text-base text-slate-300 max-w-2xl leading-relaxed">
-          If you are a copyright owner or authorized representative and believe content on {settings.websiteName || 'TONIC GAMES'} infringes your work, please complete this official removal request.
+          If you are a copyright holder or authorized legal representative and believe content on <strong className="text-pink-400">{siteName}</strong> infringes your intellectual property, please submit this formal notice for immediate takedown review.
         </p>
       </div>
 
       {/* Main Glassmorphic Container */}
       <div className="glass-card p-6 sm:p-10 rounded-3xl border border-white/10 bg-[#0c0d18]/90 backdrop-blur-xl shadow-2xl space-y-8">
-        {customContent && (
-          <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-xs text-slate-300 leading-relaxed whitespace-pre-line mb-6">
-            {customContent}
-          </div>
-        )}
-
+        
         {submitted ? (
           <div className="py-12 text-center space-y-5 animate-fade-in">
             <div className="w-20 h-20 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto border border-emerald-500/40 shadow-[0_0_30px_rgba(16,185,129,0.3)]">
               <CheckCircle2 className="w-10 h-10" />
             </div>
             <div className="space-y-2">
-              <h3 className="text-2xl font-black text-white">Notice Received Successfully</h3>
+              <h3 className="text-2xl font-black text-white">Copyright Removal Notice Received</h3>
               <p className="text-xs sm:text-sm text-slate-300 max-w-md mx-auto leading-relaxed">
-                Your copyright removal request for <strong className="text-pink-400">{form.gameTitle}</strong> has been transmitted directly to our copyright management team for immediate review and take-down processing.
+                Your request regarding <strong className="text-pink-400">{form.gameTitle}</strong> has been transmitted directly to our copyright management team for immediate review and link unindexing.
               </p>
             </div>
             <div className="pt-4 flex items-center justify-center gap-3">
@@ -139,8 +134,8 @@ Good Faith Statement: Verified under penalty of perjury.`,
             <div className="p-4 rounded-2xl bg-pink-500/10 border border-pink-500/30 text-xs text-pink-200 flex items-start gap-3">
               <AlertOctagon className="w-5 h-5 text-pink-400 shrink-0 mt-0.5" />
               <div>
-                <strong className="block font-bold text-white mb-0.5">Important Legal Notice</strong>
-                Under Section 512(f) of the DMCA, any person who knowingly misrepresents that material or activity is infringing may be subject to liability for damages.
+                <strong className="block font-bold text-white mb-0.5">Important Legal Notice (DMCA 17 U.S.C. § 512)</strong>
+                Any person who knowingly misrepresents that material or activity is infringing may be subject to liability for damages under federal law. Please ensure all information submitted is accurate and provided in good faith.
               </div>
             </div>
 
@@ -225,7 +220,7 @@ Good Faith Statement: Verified under penalty of perjury.`,
               <div>
                 <label className="block text-xs font-bold text-slate-300 mb-2 uppercase flex items-center gap-1.5">
                   <LinkIcon className="w-3.5 h-3.5 text-fuchsia-400" />
-                  <span>Link to Original Copyrighted Work</span>
+                  <span>Link to Original Work</span>
                 </label>
                 <input
                   type="url"
@@ -240,14 +235,14 @@ Good Faith Statement: Verified under penalty of perjury.`,
             <div>
               <label className="block text-xs font-bold text-slate-300 mb-2 uppercase flex items-center gap-1.5">
                 <FileText className="w-3.5 h-3.5 text-purple-400" />
-                <span>Description of Infringement & Statement *</span>
+                <span>Infringement Statement & Description *</span>
               </label>
               <textarea
                 rows={4}
                 required
                 value={form.details}
                 onChange={(e) => setForm({ ...form, details: e.target.value })}
-                placeholder="Detail the copyrighted assets (art, audio, code) that are infringed without authorization..."
+                placeholder="Detail the copyrighted assets (art, audio, source code) that are infringed without authorization..."
                 className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white text-xs focus:outline-none focus:border-purple-400"
               />
             </div>
@@ -262,7 +257,7 @@ Good Faith Statement: Verified under penalty of perjury.`,
                   className="mt-0.5 accent-pink-500 rounded cursor-pointer"
                 />
                 <span>
-                  I swear, under penalty of perjury, that I am the copyright owner or authorized agent, and that the information in this notification is accurate and submitted in good faith.
+                  I swear, under penalty of perjury, that I am the copyright owner or authorized agent, and that the information in this notice is accurate and submitted in good faith.
                 </span>
               </label>
             </div>
@@ -277,6 +272,11 @@ Good Faith Statement: Verified under penalty of perjury.`,
             </button>
           </form>
         )}
+
+        {/* Footer Note */}
+        <div className="pt-4 border-t border-white/10 text-center text-xs text-slate-400">
+          <p>© {new Date().getFullYear()} {siteName}. All copyright requests processed within 24-48 hours.</p>
+        </div>
       </div>
     </div>
   );

@@ -1794,132 +1794,114 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
           </div>
 
-          {/* LEGAL & POLICY PAGES CONTENT SECTION */}
+          {/* LEGAL & POLICY PAGES NAVIGATION & LIVE PREVIEW */}
           <div className="space-y-4 pt-6 border-t border-white/10">
             <div>
               <h3 className="text-sm font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-2">
                 <FileText className="w-4 h-4 text-cyan-400" />
-                <span>Legal & Policy Pages Custom Content</span>
+                <span>Legal & Policy Pages (Static Content)</span>
               </h3>
               <p className="text-xs text-slate-400 mt-0.5">
-                Customize the text displayed on the public legal pages. Leaving a field empty will display the default rich template.
+                All legal and policy pages are compiled as high-speed static pages directly within the platform. Editing from Admin Panel has been disabled to ensure 100% legal compliance, zero Firebase reads, and instant rendering.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 gap-5">
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase">
-                  Privacy Policy Content
-                </label>
-                <textarea
-                  rows={4}
-                  value={siteSettingsForm.privacyPolicyContent || ''}
-                  onChange={(e) =>
-                    setSiteSettingsForm({ ...siteSettingsForm, privacyPolicyContent: e.target.value })
-                  }
-                  placeholder="Enter custom Privacy Policy content..."
-                  className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white text-xs focus:outline-none focus:border-cyan-400 font-mono"
-                />
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+              <button
+                type="button"
+                onClick={onBackToSite}
+                className="p-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-left space-y-1 transition-all group cursor-pointer"
+              >
+                <div className="text-xs font-bold text-white group-hover:text-cyan-400 transition-colors flex items-center gap-1.5">
+                  <ExternalLink className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>About Us</span>
+                </div>
+                <p className="text-[11px] text-slate-400">Platform mission & features</p>
+              </button>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase">
-                  Terms & Conditions Content
-                </label>
-                <textarea
-                  rows={4}
-                  value={siteSettingsForm.termsContent || ''}
-                  onChange={(e) =>
-                    setSiteSettingsForm({ ...siteSettingsForm, termsContent: e.target.value })
-                  }
-                  placeholder="Enter custom Terms & Conditions content..."
-                  className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white text-xs focus:outline-none focus:border-cyan-400 font-mono"
-                />
-              </div>
+              <button
+                type="button"
+                onClick={onBackToSite}
+                className="p-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-left space-y-1 transition-all group cursor-pointer"
+              >
+                <div className="text-xs font-bold text-white group-hover:text-purple-400 transition-colors flex items-center gap-1.5">
+                  <ExternalLink className="w-3.5 h-3.5 text-purple-400" />
+                  <span>Community Guidelines</span>
+                </div>
+                <p className="text-[11px] text-slate-400">Safety standards & fair play</p>
+              </button>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase">
-                  About Us Page Content
-                </label>
-                <textarea
-                  rows={4}
-                  value={siteSettingsForm.aboutUsContent || ''}
-                  onChange={(e) =>
-                    setSiteSettingsForm({ ...siteSettingsForm, aboutUsContent: e.target.value })
-                  }
-                  placeholder="Enter custom About Us content..."
-                  className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white text-xs focus:outline-none focus:border-cyan-400 font-mono"
-                />
-              </div>
+              <button
+                type="button"
+                onClick={onBackToSite}
+                className="p-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-left space-y-1 transition-all group cursor-pointer"
+              >
+                <div className="text-xs font-bold text-white group-hover:text-fuchsia-400 transition-colors flex items-center gap-1.5">
+                  <ExternalLink className="w-3.5 h-3.5 text-fuchsia-400" />
+                  <span>Submission Policy</span>
+                </div>
+                <p className="text-[11px] text-slate-400">Developer publishing terms</p>
+              </button>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase">
-                  Community Guidelines Content
-                </label>
-                <textarea
-                  rows={4}
-                  value={siteSettingsForm.communityGuidelinesContent || ''}
-                  onChange={(e) =>
-                    setSiteSettingsForm({
-                      ...siteSettingsForm,
-                      communityGuidelinesContent: e.target.value,
-                    })
-                  }
-                  placeholder="Enter custom Community Guidelines rules and standards..."
-                  className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white text-xs focus:outline-none focus:border-cyan-400 font-mono"
-                />
-              </div>
+              <button
+                type="button"
+                onClick={onBackToSite}
+                className="p-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-left space-y-1 transition-all group cursor-pointer"
+              >
+                <div className="text-xs font-bold text-white group-hover:text-cyan-400 transition-colors flex items-center gap-1.5">
+                  <ExternalLink className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>Privacy Policy</span>
+                </div>
+                <p className="text-[11px] text-slate-400">GDPR, CCPA & Data rules</p>
+              </button>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase">
-                  Game Submission Policy Content
-                </label>
-                <textarea
-                  rows={4}
-                  value={siteSettingsForm.gameSubmissionPolicyContent || ''}
-                  onChange={(e) =>
-                    setSiteSettingsForm({
-                      ...siteSettingsForm,
-                      gameSubmissionPolicyContent: e.target.value,
-                    })
-                  }
-                  placeholder="Enter custom Developer Game Submission Policy terms..."
-                  className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white text-xs focus:outline-none focus:border-cyan-400 font-mono"
-                />
-              </div>
+              <button
+                type="button"
+                onClick={onBackToSite}
+                className="p-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-left space-y-1 transition-all group cursor-pointer"
+              >
+                <div className="text-xs font-bold text-white group-hover:text-amber-400 transition-colors flex items-center gap-1.5">
+                  <ExternalLink className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Terms & Conditions</span>
+                </div>
+                <p className="text-[11px] text-slate-400">Portal usage & disclaimers</p>
+              </button>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase">
-                  DMCA / Copyright Policy Content
-                </label>
-                <textarea
-                  rows={4}
-                  value={siteSettingsForm.dmcaPolicyContent || ''}
-                  onChange={(e) =>
-                    setSiteSettingsForm({ ...siteSettingsForm, dmcaPolicyContent: e.target.value })
-                  }
-                  placeholder="Enter custom DMCA take-down compliance policy text..."
-                  className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white text-xs focus:outline-none focus:border-cyan-400 font-mono"
-                />
-              </div>
+              <button
+                type="button"
+                onClick={onBackToSite}
+                className="p-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-left space-y-1 transition-all group cursor-pointer"
+              >
+                <div className="text-xs font-bold text-white group-hover:text-pink-400 transition-colors flex items-center gap-1.5">
+                  <ExternalLink className="w-3.5 h-3.5 text-pink-400" />
+                  <span>DMCA & Copyright</span>
+                </div>
+                <p className="text-[11px] text-slate-400">17 U.S.C. § 512 policy</p>
+              </button>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase">
-                  Copyright Removal Request Header Notice
-                </label>
-                <textarea
-                  rows={4}
-                  value={siteSettingsForm.copyrightRemovalContent || ''}
-                  onChange={(e) =>
-                    setSiteSettingsForm({
-                      ...siteSettingsForm,
-                      copyrightRemovalContent: e.target.value,
-                    })
-                  }
-                  placeholder="Enter custom instructions or legal notices for the Copyright Removal Request page..."
-                  className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white text-xs focus:outline-none focus:border-cyan-400 font-mono"
-                />
-              </div>
+              <button
+                type="button"
+                onClick={onBackToSite}
+                className="p-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-left space-y-1 transition-all group cursor-pointer"
+              >
+                <div className="text-xs font-bold text-white group-hover:text-rose-400 transition-colors flex items-center gap-1.5">
+                  <ExternalLink className="w-3.5 h-3.5 text-rose-400" />
+                  <span>Copyright Removal</span>
+                </div>
+                <p className="text-[11px] text-slate-400">Online takedown request form</p>
+              </button>
+
+              <button
+                type="button"
+                onClick={onBackToSite}
+                className="p-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-left space-y-1 transition-all group cursor-pointer"
+              >
+                <div className="text-xs font-bold text-white group-hover:text-emerald-400 transition-colors flex items-center gap-1.5">
+                  <ExternalLink className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Contact Support</span>
+                </div>
+                <p className="text-[11px] text-slate-400">Inquiries & contact messages</p>
+              </button>
             </div>
           </div>
 

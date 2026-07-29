@@ -129,14 +129,6 @@ export interface SiteSettings {
   rateButtonLink: string;
   submissionButtonLink: string;
   contactButtonLink: string;
-  // Legal & Policy Pages Custom Content
-  privacyPolicyContent?: string;
-  termsContent?: string;
-  aboutUsContent?: string;
-  communityGuidelinesContent?: string;
-  gameSubmissionPolicyContent?: string;
-  dmcaPolicyContent?: string;
-  copyrightRemovalContent?: string;
 }
 
 export type PageView =
