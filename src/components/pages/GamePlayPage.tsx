@@ -377,18 +377,25 @@ export const GamePlayPage: React.FC<GamePlayPageProps> = ({
                 </span>
               </div>
 
-              {/* CENTERED PLAY BUTTON OVER COVER */}
-              <div className="absolute z-20 flex flex-col items-center justify-center p-4 text-center space-y-3">
+              {/* CENTERED POKI-STYLE PLAY BUTTON OVER COVER */}
+              <div className="absolute z-20 flex flex-col items-center justify-center p-4 text-center">
                 <button
                   onClick={handleStartPlay}
-                  className="group/play relative px-8 sm:px-12 py-4 sm:py-5 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-purple-600 text-slate-950 font-black text-lg sm:text-2xl uppercase tracking-wider flex items-center gap-3 shadow-[0_0_40px_rgba(34,211,238,0.6)] hover:shadow-[0_0_60px_rgba(217,70,239,0.8)] hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer border border-white/30"
+                  className="group/play flex flex-col items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer focus:outline-none"
+                  aria-label="Play now"
                 >
-                  <div className="p-2 sm:p-2.5 rounded-full bg-slate-950 text-cyan-400 group-hover/play:text-fuchsia-400 transition-colors">
-                    <Play className="w-6 h-6 sm:w-8 sm:h-8 fill-current ml-0.5" />
+                  {/* Glassy Translucent Circular Button */}
+                  <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-full bg-white/80 hover:bg-white backdrop-blur-md border border-white/50 shadow-[0_10px_35px_rgba(0,0,0,0.4)] hover:shadow-[0_0_40px_rgba(0,156,255,0.6)] flex items-center justify-center transition-all duration-300 group-hover/play:rotate-3">
+                    <Play className="w-9 h-9 sm:w-13 sm:h-13 fill-[#0092ff] text-[#0092ff] ml-1.5 transition-transform duration-300 group-hover/play:scale-110" />
                   </div>
-                  <span>PLAY NOW</span>
+
+                  {/* "Play now" Label Below Circle */}
+                  <span className="mt-3 sm:mt-4 font-black text-2xl sm:text-3xl text-white tracking-tight drop-shadow-[0_3px_10px_rgba(0,0,0,0.9)] transition-colors duration-200 group-hover/play:text-cyan-300">
+                    Play now
+                  </span>
                 </button>
-                <p className="text-xs sm:text-sm font-semibold text-slate-200 drop-shadow-md bg-black/60 px-4 py-1.5 rounded-full border border-white/10 backdrop-blur-md">
+
+                <p className="mt-4 text-xs sm:text-sm font-semibold text-slate-200 drop-shadow-md bg-black/60 px-4 py-1.5 rounded-full border border-white/10 backdrop-blur-md">
                   ⚡ Play directly in your browser • No redirects or downloads
                 </p>
               </div>

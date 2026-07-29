@@ -61,10 +61,8 @@ export const GameCard: React.FC<GameCardProps> = ({ game, onPlayGame }) => {
 
         {/* Play Overlay Button */}
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-black/40 backdrop-blur-[1px]">
-          <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-gradient-to-r from-cyan-400 to-fuchsia-500 p-[2px] shadow-[0_0_20px_rgba(34,211,238,0.6)] scale-90 group-hover:scale-100 transition-transform">
-            <div className="w-full h-full bg-[#050505] rounded-full flex items-center justify-center text-white">
-              <Play className="w-4 h-4 sm:w-5 sm:h-5 fill-white ml-0.5 text-white" />
-            </div>
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/85 backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.4)] flex items-center justify-center scale-90 group-hover:scale-100 transition-transform">
+            <Play className="w-5 h-5 sm:w-6 sm:h-6 fill-[#0092ff] text-[#0092ff] ml-0.5" />
           </div>
         </div>
       </div>
