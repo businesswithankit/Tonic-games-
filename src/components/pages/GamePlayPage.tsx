@@ -30,6 +30,7 @@ import {
   HelpCircle,
   Sliders,
   Maximize2,
+  AlertTriangle,
 } from 'lucide-react';
 import { Game, NetworkAd, PageView, SiteSettings, SponsorAd } from '../../types';
 import {
@@ -70,6 +71,14 @@ export const GamePlayPage: React.FC<GamePlayPageProps> = ({
   const [viewsCount, setViewsCount] = useState<number>(game?.views || 100);
   const [recentlyPlayedList, setRecentlyPlayedList] = useState(getRecentlyPlayed());
 
+  // In-Site Embedded Player state
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [loadingPercent, setLoadingPercent] = useState<number>(0);
+  const [iframeKey, setIframeKey] = useState<number>(0);
+  const [embedError, setEmbedError] = useState<boolean>(false);
+  const playerContainerRef = React.useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
     if (game) {
       addRecentlyPlayed(game);
@@ -77,12 +86,69 @@ export const GamePlayPage: React.FC<GamePlayPageProps> = ({
       setRecentlyPlayedList(getRecentlyPlayed());
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
+      // Reset player states when active game changes
+      setIsPlaying(false);
+      setIsLoading(false);
+      setLoadingPercent(0);
+      setEmbedError(false);
+
       // Automatically increment views count
       incrementGameViews(game.id).then((updatedViews) => {
         if (updatedViews) setViewsCount(updatedViews);
       });
     }
   }, [game]);
+
+  // Handle Play Now click - start loading embedded player in-site
+  const handleStartPlay = () => {
+    setIsPlaying(true);
+    setIsLoading(true);
+    setLoadingPercent(15);
+    setEmbedError(false);
+
+    // Simulated progress tick until frame triggers onLoad
+    const interval = setInterval(() => {
+      setLoadingPercent((prev) => {
+        if (prev >= 90) {
+          clearInterval(interval);
+          return 90;
+        }
+        return prev + Math.floor(Math.random() * 15 + 10);
+      });
+    }, 200);
+  };
+
+  const handleFrameLoad = () => {
+    setLoadingPercent(100);
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 300);
+  };
+
+  const handleRefreshGame = () => {
+    setIframeKey((prev) => prev + 1);
+    setIsLoading(true);
+    setLoadingPercent(20);
+    setEmbedError(false);
+  };
+
+  const handleToggleFullscreen = () => {
+    if (!playerContainerRef.current) return;
+    const elem = playerContainerRef.current as any;
+    if (document.fullscreenElement) {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    } else {
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      } else if (elem.webkitRequestFullscreen) {
+        elem.webkitRequestFullscreen();
+      } else if (elem.msRequestFullscreen) {
+        elem.msRequestFullscreen();
+      }
+    }
+  };
 
   // Rating value (default 4.8 if not specified)
   const ratingValue = game?.rating ? game.rating.toFixed(1) : '4.8';
@@ -206,115 +272,284 @@ export const GamePlayPage: React.FC<GamePlayPageProps> = ({
       />
 
       {/* -------------------------------------------------------------
-          SECTION 1: HERO SECTION
+          SECTION 1: HERO & IN-SITE GAME PLAYER CONTAINER
       ------------------------------------------------------------- */}
-      <section className="glass-card p-4 sm:p-8 rounded-3xl border border-white/10 bg-[#0c0d18]/90 backdrop-blur-xl shadow-2xl space-y-6">
-        {/* Large Game Thumbnail */}
-        <div className="relative w-full aspect-[21/9] min-h-[220px] sm:min-h-[380px] rounded-2xl sm:rounded-3xl overflow-hidden border border-white/15 bg-slate-950 shadow-[0_0_40px_rgba(6,182,212,0.2)] group">
-          <img
-            src={
-              game.thumbnail ||
-              'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=80'
-            }
-            alt={game.title}
-            loading="lazy"
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#06070a] via-black/40 to-transparent" />
-
-          {/* Badges on Thumbnail */}
-          <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
-            <span className="px-3 py-1 rounded-full bg-cyan-500/80 backdrop-blur-md text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg flex items-center gap-1">
-              <Tag className="w-3.5 h-3.5 fill-slate-950" />
-              {game.category}
-            </span>
-            <span className="px-3 py-1 rounded-full bg-purple-600/80 backdrop-blur-md text-white font-mono text-xs font-bold shadow-lg">
-              v{game.version || '1.0.0'}
-            </span>
-          </div>
-        </div>
-
-        {/* Hero Meta Header Info */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-white/10 pb-6">
-          <div className="space-y-2">
-            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight">
+      <section className="glass-card p-4 sm:p-6 rounded-3xl border border-white/10 bg-[#0c0d18]/90 backdrop-blur-xl shadow-2xl space-y-5">
+        {/* Game Title & Meta Bar Above Player */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-white/10 pb-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="px-2.5 py-0.5 rounded-full bg-purple-500/15 border border-purple-500/30 text-purple-300 font-bold text-[10px] uppercase tracking-wider">
+                {game.category}
+              </span>
+              <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 font-mono text-[10px] font-bold">
+                v{game.version || '1.0.0'}
+              </span>
+              <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-bold text-[10px] uppercase">
+                HTML5 Instant Play
+              </span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
               {game.title}
             </h1>
-            <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm font-semibold text-slate-300">
-              <span className="flex items-center gap-1 text-cyan-400">
-                <User className="w-4 h-4 text-cyan-400" />
+            <div className="flex flex-wrap items-center gap-3 text-xs font-medium text-slate-300">
+              <span className="flex items-center gap-1 text-cyan-400 font-semibold">
+                <User className="w-3.5 h-3.5 text-cyan-400" />
                 {game.developer || 'Indie Game Studio'}
               </span>
               <span>•</span>
               <span className="flex items-center gap-1 text-amber-300 font-bold">
-                <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                 {ratingValue} / 5.0
               </span>
               <span>•</span>
-              <span className="flex items-center gap-1 text-purple-300 uppercase">
-                {game.category}
+              <span className="flex items-center gap-1 text-cyan-300">
+                <Eye className="w-3.5 h-3.5 text-cyan-400" />
+                {viewsCount.toLocaleString()} Views
+              </span>
+              <span>•</span>
+              <span className="flex items-center gap-1 text-slate-400">
+                <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                {game.releaseDate || '2026'}
               </span>
             </div>
           </div>
 
-          {/* Primary Button: ▶ Play Now */}
-          <div className="w-full md:w-auto">
-            <button
-              onClick={handlePlayNow}
-              className="w-full md:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-purple-600 text-slate-950 font-black text-base sm:text-lg uppercase tracking-wider flex items-center justify-center gap-3 shadow-[0_0_35px_rgba(34,211,238,0.5)] hover:scale-[1.03] active:scale-[0.97] transition-all cursor-pointer"
+          {/* Quick Toolbar for Player controls when playing */}
+          {isPlaying && (
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                onClick={handleRefreshGame}
+                className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-slate-200 hover:text-white text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+                title="Restart Game"
+              >
+                <RefreshCw className="w-3.5 h-3.5 text-cyan-400" />
+                <span className="hidden sm:inline">Refresh</span>
+              </button>
+
+              <button
+                onClick={handleToggleFullscreen}
+                className="px-3.5 py-2 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+                title="Toggle Fullscreen"
+              >
+                <Maximize2 className="w-3.5 h-3.5 text-cyan-300" />
+                <span>Fullscreen</span>
+              </button>
+
+              <a
+                href={game.playUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3.5 py-2 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/40 text-purple-200 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+                title="Open directly in new tab"
+              >
+                <ExternalLink className="w-3.5 h-3.5 text-purple-300" />
+                <span className="hidden sm:inline">New Tab</span>
+              </a>
+            </div>
+          )}
+        </div>
+
+        {/* Player Box Container */}
+        <div
+          ref={playerContainerRef}
+          className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden border border-white/15 bg-slate-950 shadow-[0_0_50px_rgba(6,182,212,0.25)] transition-all"
+        >
+          {!isPlaying ? (
+            /* --- STATE 1: COVER THUMBNAIL WITH CENTERED PLAY BUTTON --- */
+            <div className="relative w-full aspect-[16/9] min-h-[260px] sm:min-h-[440px] group flex items-center justify-center">
+              <img
+                src={
+                  game.thumbnail ||
+                  'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=80'
+                }
+                alt={game.title}
+                loading="eager"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 brightness-90"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20" />
+
+              {/* Cover Badges */}
+              <div className="absolute top-4 left-4 sm:top-6 sm:left-6 flex items-center gap-2 z-10">
+                <span className="px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white font-bold text-xs flex items-center gap-1.5">
+                  <Gamepad2 className="w-4 h-4 text-cyan-400" />
+                  <span>Ready to Play</span>
+                </span>
+              </div>
+
+              {/* CENTERED PLAY BUTTON OVER COVER */}
+              <div className="absolute z-20 flex flex-col items-center justify-center p-4 text-center space-y-3">
+                <button
+                  onClick={handleStartPlay}
+                  className="group/play relative px-8 sm:px-12 py-4 sm:py-5 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-purple-600 text-slate-950 font-black text-lg sm:text-2xl uppercase tracking-wider flex items-center gap-3 shadow-[0_0_40px_rgba(34,211,238,0.6)] hover:shadow-[0_0_60px_rgba(217,70,239,0.8)] hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer border border-white/30"
+                >
+                  <div className="p-2 sm:p-2.5 rounded-full bg-slate-950 text-cyan-400 group-hover/play:text-fuchsia-400 transition-colors">
+                    <Play className="w-6 h-6 sm:w-8 sm:h-8 fill-current ml-0.5" />
+                  </div>
+                  <span>PLAY NOW</span>
+                </button>
+                <p className="text-xs sm:text-sm font-semibold text-slate-200 drop-shadow-md bg-black/60 px-4 py-1.5 rounded-full border border-white/10 backdrop-blur-md">
+                  ⚡ Play directly in your browser • No redirects or downloads
+                </p>
+              </div>
+
+              {/* Bottom Cover Info */}
+              <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 right-4 sm:right-6 flex flex-wrap items-center justify-between gap-2 z-10 text-xs font-bold text-slate-300">
+                <span className="text-cyan-300 flex items-center gap-1">
+                  <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+                  Orientation: {game.orientation || 'Landscape'}
+                </span>
+                <span className="text-purple-300 font-mono">
+                  Safe HTML5 Verified Frame
+                </span>
+              </div>
+            </div>
+          ) : (
+            /* --- STATE 2: EMBEDDED IFRAME PLAYER IN-SITE --- */
+            <div
+              className={`relative w-full bg-black ${
+                game.orientation === 'portrait'
+                  ? 'aspect-[3/4] max-w-md mx-auto min-h-[500px]'
+                  : 'aspect-[16/9] min-h-[350px] sm:min-h-[520px] lg:min-h-[600px]'
+              }`}
             >
-              <Play className="w-6 h-6 fill-slate-950" />
-              <span>PLAY NOW</span>
-              <ExternalLink className="w-5 h-5 ml-1 opacity-80" />
+              {/* Loading Overlay with progress percentage */}
+              {isLoading && (
+                <div className="absolute inset-0 z-30 bg-[#080910] flex flex-col items-center justify-center p-6 space-y-4 text-center animate-fade-in">
+                  <div className="relative w-20 h-20 flex items-center justify-center">
+                    <div className="absolute inset-0 rounded-full border-4 border-purple-500/20 border-t-cyan-400 animate-spin" />
+                    <Gamepad2 className="w-8 h-8 text-cyan-400 animate-pulse" />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <h3 className="text-lg font-black text-white tracking-wide">
+                      Loading Game Assets...
+                    </h3>
+                    <p className="text-2xl font-black font-mono text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">
+                      {loadingPercent}%
+                    </p>
+                  </div>
+
+                  {/* Progress Bar */}
+                  <div className="w-full max-w-xs h-2.5 bg-white/10 rounded-full overflow-hidden border border-white/10">
+                    <div
+                      className="h-full bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-purple-500 transition-all duration-300 ease-out"
+                      style={{ width: `${loadingPercent}%` }}
+                    />
+                  </div>
+
+                  <p className="text-xs text-slate-400 font-medium max-w-sm">
+                    Connecting to secure HTML5 frame player for {game.title}...
+                  </p>
+                </div>
+              )}
+
+              {/* Embedded Game Iframe */}
+              <iframe
+                key={iframeKey}
+                src={game.playUrl}
+                title={game.title}
+                className="w-full h-full border-0 bg-black shadow-inner"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; execution-while-out-of-viewport; execution-while-not-rendered; web-share; fullscreen"
+                allowFullScreen
+                onLoad={handleFrameLoad}
+                onError={() => {
+                  setEmbedError(true);
+                  setIsLoading(false);
+                }}
+              />
+
+              {/* Fallback Error Overlay if Embedding is blocked */}
+              {embedError && (
+                <div className="absolute inset-0 z-40 bg-[#0c0d18] flex flex-col items-center justify-center p-6 text-center space-y-4">
+                  <div className="p-4 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/40">
+                    <AlertTriangle className="w-8 h-8" />
+                  </div>
+                  <div className="space-y-1 max-w-md">
+                    <h3 className="text-lg font-bold text-white">External Embedding Blocked</h3>
+                    <p className="text-xs text-slate-300">
+                      The game provider restricts embedding this title directly inside an iframe. You can open it in a clean external tab to play.
+                    </p>
+                  </div>
+                  <a
+                    href={game.playUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-6 py-3 rounded-2xl bg-gradient-to-r from-cyan-400 to-purple-600 text-slate-950 font-black text-xs uppercase tracking-wider flex items-center gap-2 shadow-lg"
+                  >
+                    <span>Open Game in New Tab</span>
+                    <ExternalLink className="w-4 h-4" />
+                  </a>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Player Controls Bar below box */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+          <div className="flex items-center gap-2 text-xs text-slate-300 font-medium">
+            <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span>Verified HTTPS Safe • Zero Downloads • Free HTML5 Gameplay</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleToggleFavorite}
+              className={`px-3.5 py-2 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                isFav
+                  ? 'bg-pink-500/20 border-pink-500/60 text-pink-300 shadow-[0_0_15px_rgba(236,72,153,0.3)]'
+                  : 'bg-white/5 hover:bg-white/10 border-white/15 text-slate-200'
+              }`}
+            >
+              <Heart
+                className={`w-4 h-4 ${isFav ? 'fill-pink-400 text-pink-400' : 'text-slate-300'}`}
+              />
+              <span>{isFav ? 'Favorited' : 'Favorite'}</span>
+            </button>
+
+            <button
+              onClick={handleShare}
+              className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-slate-200 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+            >
+              {copied ? (
+                <>
+                  <Check className="w-4 h-4 text-emerald-400" />
+                  <span className="text-emerald-400">Copied!</span>
+                </>
+              ) : (
+                <>
+                  <Share2 className="w-4 h-4 text-purple-400" />
+                  <span>Share</span>
+                </>
+              )}
+            </button>
+
+            <button
+              onClick={() => setReportModalOpen(true)}
+              className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-red-500/15 border border-white/15 hover:border-red-500/40 text-slate-200 hover:text-red-300 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+            >
+              <Flag className="w-4 h-4 text-red-400" />
+              <span>Report</span>
             </button>
           </div>
         </div>
 
-        {/* Action Row Below Play Button: Favorite, Share, Report */}
-        <div className="grid grid-cols-3 gap-2 sm:gap-4 pt-2">
-          {/* Favorite */}
-          <button
-            onClick={handleToggleFavorite}
-            className={`py-3 sm:py-3.5 px-4 rounded-2xl border text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
-              isFav
-                ? 'bg-pink-500/20 border-pink-500/60 text-pink-300 shadow-[0_0_15px_rgba(236,72,153,0.3)]'
-                : 'bg-white/5 hover:bg-white/10 border-white/15 text-slate-200'
-            }`}
+        {/* Fallback helper notification for frame embedding */}
+        <div className="p-3 rounded-2xl bg-white/5 border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-300">
+          <div className="flex items-center gap-2">
+            <Info className="w-4 h-4 text-cyan-400 shrink-0" />
+            <span>Facing frame display issues or blank screen? You can launch the game in a clean separate window anytime.</span>
+          </div>
+          <a
+            href={game.playUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-3 py-1.5 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 font-bold text-[11px] uppercase tracking-wider flex items-center gap-1.5 shrink-0 transition-all"
           >
-            <Heart
-              className={`w-4 h-4 sm:w-5 sm:h-5 ${
-                isFav ? 'fill-pink-400 text-pink-400' : 'text-slate-300'
-              }`}
-            />
-            <span>{isFav ? 'Favorited' : 'Favorite'}</span>
-          </button>
-
-          {/* Share */}
-          <button
-            onClick={handleShare}
-            className="py-3 sm:py-3.5 px-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/15 text-slate-200 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer"
-          >
-            {copied ? (
-              <>
-                <Check className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400" />
-                <span className="text-emerald-400">Copied!</span>
-              </>
-            ) : (
-              <>
-                <Share2 className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
-                <span>Share</span>
-              </>
-            )}
-          </button>
-
-          {/* Report */}
-          <button
-            onClick={() => setReportModalOpen(true)}
-            className="py-3 sm:py-3.5 px-4 rounded-2xl bg-white/5 hover:bg-red-500/15 border border-white/15 hover:border-red-500/40 text-slate-200 hover:text-red-300 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer"
-          >
-            <Flag className="w-4 h-4 sm:w-5 sm:h-5 text-red-400" />
-            <span>Report</span>
-          </button>
+            <span>Open in New Tab</span>
+            <ExternalLink className="w-3 h-3" />
+          </a>
         </div>
       </section>
 
