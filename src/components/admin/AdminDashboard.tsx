@@ -38,6 +38,24 @@ import {
   FileText,
 } from 'lucide-react';
 import { AdPosition, Category, ContactSubmission, Game, GameSubmission, NetworkAd, SiteSettings, SocialLink, SponsorAd, UpcomingGame } from '../../types';
+
+const ALL_PLATFORMS = ['Android', 'iOS', 'Windows', 'macOS', 'Linux', 'Web Browser'];
+const PRESET_TAG_OPTIONS = [
+  'Action',
+  'Adventure',
+  'Puzzle',
+  'Racing',
+  'Horror',
+  'Multiplayer',
+  'Arcade',
+  'Casual',
+  'Offline',
+  'Online',
+  'Shooter',
+  'Sports',
+  'Strategy',
+  'RPG',
+];
 import {
   deleteCategoryFromStore,
   deleteContactFromStore,
@@ -151,6 +169,42 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [gameCategoryFilter, setGameCategoryFilter] = useState('all');
   const [editingGame, setEditingGame] = useState<Partial<Game> | null>(null);
   const [isGameModalOpen, setIsGameModalOpen] = useState(false);
+  const [adminTagInput, setAdminTagInput] = useState('');
+
+  // Platform & Tag Helper Functions
+  const toggleAdminPlatform = (platform: string) => {
+    if (!editingGame) return;
+    const current = editingGame.platforms || ['Web Browser'];
+    const exists = current.includes(platform);
+    const updated = exists ? current.filter((p) => p !== platform) : [...current, platform];
+    setEditingGame({ ...editingGame, platforms: updated });
+  };
+
+  const toggleAdminTag = (tag: string) => {
+    if (!editingGame) return;
+    const current = editingGame.tags || [];
+    const exists = current.includes(tag);
+    const updated = exists ? current.filter((t) => t !== tag) : [...current, tag];
+    setEditingGame({ ...editingGame, tags: updated });
+  };
+
+  const handleAddAdminCustomTag = (e?: React.FormEvent | React.KeyboardEvent) => {
+    if (e) e.preventDefault();
+    if (!editingGame) return;
+    const trimmed = adminTagInput.trim();
+    if (!trimmed) return;
+    const current = editingGame.tags || [];
+    if (!current.includes(trimmed)) {
+      setEditingGame({ ...editingGame, tags: [...current, trimmed] });
+    }
+    setAdminTagInput('');
+  };
+
+  const handleRemoveAdminTag = (tagToRemove: string) => {
+    if (!editingGame) return;
+    const current = editingGame.tags || [];
+    setEditingGame({ ...editingGame, tags: current.filter((t) => t !== tagToRemove) });
+  };
 
   // --- CATEGORY CRUD STATE ---
   const [editingCat, setEditingCat] = useState<Partial<Category> | null>(null);
@@ -194,10 +248,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         category: editingGame.category || categories[0]?.slug || 'action',
         featured: !!editingGame.featured,
         trending: !!editingGame.trending,
-        recentlyAdded: !!editingGame.recentlyAdded,
+        recentlyAdded: editingGame.recentlyAdded !== undefined ? !!editingGame.recentlyAdded : true,
         orientation: editingGame.orientation || 'landscape',
         playUrl: editingGame.playUrl,
         status: editingGame.status || 'active',
+        platforms: editingGame.platforms && editingGame.platforms.length > 0 ? editingGame.platforms : ['Web Browser'],
+        tags: editingGame.tags && editingGame.tags.length > 0 ? editingGame.tags : ['Action'],
+        developerWebsite: editingGame.developerWebsite || '',
+        developerEmail: editingGame.developerEmail || '',
+        aiPromptUsed: editingGame.aiPromptUsed || '',
         createdTime: editingGame.createdTime || new Date().toISOString(),
         updatedTime: new Date().toISOString(),
       },
@@ -1927,222 +1986,507 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
       {/* EDIT GAME MODAL */}
       {isGameModalOpen && editingGame && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="w-full max-w-2xl bg-[#0e101a] border border-white/15 rounded-3xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-white/10 pb-3">
-              <h3 className="text-lg font-bold text-white">
-                {editingGame.id ? 'Edit Game Title' : 'Add New Game'}
-              </h3>
-              <button
-                onClick={() => setIsGameModalOpen(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-white"
-              >
-                <X className="w-5 h-5" />
-              </button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in">
+          <div className="w-full max-w-4xl bg-[#0e101a] border border-cyan-500/30 rounded-3xl p-6 sm:p-8 space-y-6 max-h-[92vh] overflow-y-auto shadow-[0_0_50px_rgba(6,182,212,0.15)] relative">
+            <button
+              type="button"
+              onClick={() => setIsGameModalOpen(false)}
+              className="absolute top-6 right-6 p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-3 border-b border-white/10 pb-4">
+              <div className="p-3 rounded-2xl bg-cyan-500/20 border border-cyan-500/40 text-cyan-300">
+                <Gamepad2 className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-white">
+                  {editingGame.id ? 'Edit Game Record' : 'Add New Game to Portal'}
+                </h3>
+                <p className="text-xs text-slate-400">
+                  Fill in all metadata, media URLs, platforms, tags, and instructions for the game.
+                </p>
+              </div>
             </div>
 
-            <form onSubmit={handleSaveGame} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1 uppercase">
-                    Title *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={editingGame.title || ''}
-                    onChange={(e) => setEditingGame({ ...editingGame, title: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-xs text-white"
-                  />
+            <form onSubmit={handleSaveGame} className="space-y-6">
+              {/* SECTION 1: BASIC GAME INFORMATION */}
+              <div className="p-5 rounded-2xl bg-black/40 border border-white/10 space-y-4">
+                <h4 className="text-xs font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-2 border-b border-white/5 pb-2">
+                  <Sparkles className="w-4 h-4 text-cyan-400" />
+                  <span>1. Basic Game Information</span>
+                </h4>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-300 mb-1.5 uppercase">
+                      Game Title / Name *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Cyberpunk Racer 2077"
+                      value={editingGame.title || ''}
+                      onChange={(e) => setEditingGame({ ...editingGame, title: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-900/80 border border-white/15 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-300 mb-1.5 uppercase">
+                      Developer / Studio Name *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Neon Pixel Games"
+                      value={editingGame.developer || ''}
+                      onChange={(e) => setEditingGame({ ...editingGame, developer: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-900/80 border border-white/15 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-300 mb-1.5 uppercase">
+                      Primary Category *
+                    </label>
+                    <select
+                      value={editingGame.category || categories[0]?.slug}
+                      onChange={(e) => setEditingGame({ ...editingGame, category: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-900/80 border border-white/15 text-xs text-white font-bold focus:outline-none focus:border-cyan-400"
+                    >
+                      {categories.map((c) => (
+                        <option key={c.id} value={c.slug} className="bg-[#0b0d16] text-white">
+                          {c.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-300 mb-1.5 uppercase">
+                      Version *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. 1.0.0"
+                      value={editingGame.version || '1.0.0'}
+                      onChange={(e) => setEditingGame({ ...editingGame, version: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-900/80 border border-white/15 text-xs text-white font-mono placeholder:text-slate-500 focus:outline-none focus:border-cyan-400"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-300 mb-1.5 uppercase">
+                      Weight / Game Size
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. 12 MB"
+                      value={editingGame.weight || ''}
+                      onChange={(e) => setEditingGame({ ...editingGame, weight: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-900/80 border border-white/15 text-xs text-white font-mono placeholder:text-slate-500 focus:outline-none focus:border-cyan-400"
+                    />
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1 uppercase">
-                    Developer
+                  <label className="block text-[11px] font-bold text-slate-300 mb-1.5 uppercase">
+                    Play URL (Embed / Game Frame Link) *
                   </label>
-                  <input
-                    type="text"
-                    value={editingGame.developer || ''}
-                    onChange={(e) => setEditingGame({ ...editingGame, developer: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-xs text-white"
+                  <div className="relative">
+                    <input
+                      type="url"
+                      required
+                      placeholder="https://play.gamepix.com/..."
+                      value={editingGame.playUrl || ''}
+                      onChange={(e) => setEditingGame({ ...editingGame, playUrl: e.target.value })}
+                      className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-900/80 border border-white/15 text-xs text-cyan-300 font-mono placeholder:text-slate-500 focus:outline-none focus:border-cyan-400"
+                    />
+                    <LinkIcon className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-300 mb-1.5 uppercase">
+                    Short Description *
+                  </label>
+                  <textarea
+                    rows={2}
+                    required
+                    placeholder="Enter a punchy, 1-2 sentence overview of the game..."
+                    value={editingGame.description || ''}
+                    onChange={(e) => setEditingGame({ ...editingGame, description: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-900/80 border border-white/15 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+                  <div className="md:col-span-2">
+                    <label className="block text-[11px] font-bold text-slate-300 mb-1.5 uppercase">
+                      Thumbnail Image URL *
+                    </label>
+                    <input
+                      type="url"
+                      required
+                      placeholder="https://images.unsplash.com/..."
+                      value={editingGame.thumbnail || ''}
+                      onChange={(e) => setEditingGame({ ...editingGame, thumbnail: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-900/80 border border-white/15 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-300 mb-1.5 uppercase">
+                      Thumbnail Preview
+                    </label>
+                    <div className="h-20 rounded-xl overflow-hidden bg-black/60 border border-white/10 flex items-center justify-center relative group">
+                      {editingGame.thumbnail ? (
+                        <img
+                          src={editingGame.thumbnail}
+                          alt="Preview"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src =
+                              'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=300&q=80';
+                          }}
+                        />
+                      ) : (
+                        <span className="text-[10px] text-slate-500 italic">No URL provided</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* SECTION 2: TARGET PLATFORMS, ORIENTATION & TAGS */}
+              <div className="p-5 rounded-2xl bg-black/40 border border-white/10 space-y-4">
+                <h4 className="text-xs font-bold text-purple-400 uppercase tracking-wider flex items-center gap-2 border-b border-white/5 pb-2">
+                  <Layers className="w-4 h-4 text-purple-400" />
+                  <span>2. Target Platforms, Screen Orientation & Tags</span>
+                </h4>
+
+                {/* PLATFORMS */}
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-300 mb-2 uppercase">
+                    Supported Platforms
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {ALL_PLATFORMS.map((plat) => {
+                      const isSelected = (editingGame.platforms || ['Web Browser']).includes(plat);
+                      return (
+                        <button
+                          key={plat}
+                          type="button"
+                          onClick={() => toggleAdminPlatform(plat)}
+                          className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                            isSelected
+                              ? 'bg-purple-600 text-white border border-purple-400 shadow-[0_0_10px_rgba(168,85,247,0.3)]'
+                              : 'bg-white/5 hover:bg-white/10 text-slate-400 border border-white/10'
+                          }`}
+                        >
+                          <Check className={`w-3.5 h-3.5 ${isSelected ? 'opacity-100' : 'opacity-0'}`} />
+                          <span>{plat}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* ORIENTATION */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-300 mb-2 uppercase">
+                      Optimal Screen Orientation
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setEditingGame({ ...editingGame, orientation: 'landscape' })}
+                        className={`p-3 rounded-xl border text-left transition-all flex items-center gap-2 cursor-pointer ${
+                          editingGame.orientation === 'landscape' || !editingGame.orientation
+                            ? 'bg-cyan-500/20 border-cyan-400 text-cyan-300 font-bold'
+                            : 'bg-white/5 border-white/10 text-slate-400'
+                        }`}
+                      >
+                        <Monitor className="w-4 h-4 shrink-0" />
+                        <div>
+                          <p className="text-xs font-bold">Landscape</p>
+                          <p className="text-[10px] text-slate-400">Desktop / Tablet</p>
+                        </div>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setEditingGame({ ...editingGame, orientation: 'portrait' })}
+                        className={`p-3 rounded-xl border text-left transition-all flex items-center gap-2 cursor-pointer ${
+                          editingGame.orientation === 'portrait'
+                            ? 'bg-cyan-500/20 border-cyan-400 text-cyan-300 font-bold'
+                            : 'bg-white/5 border-white/10 text-slate-400'
+                        }`}
+                      >
+                        <Smartphone className="w-4 h-4 shrink-0" />
+                        <div>
+                          <p className="text-xs font-bold">Portrait</p>
+                          <p className="text-[10px] text-slate-400">Mobile First</p>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-300 mb-1.5 uppercase">
+                      Features (Comma Separated)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. 60 FPS, Touch Controls, High Score Leaderboards"
+                      value={
+                        Array.isArray(editingGame.features)
+                          ? editingGame.features.join(', ')
+                          : editingGame.features || ''
+                      }
+                      onChange={(e) => setEditingGame({ ...editingGame, features: e.target.value as any })}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-900/80 border border-white/15 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-purple-400"
+                    />
+                  </div>
+                </div>
+
+                {/* GAME TAGS */}
+                <div className="space-y-3">
+                  <label className="block text-[11px] font-bold text-slate-300 uppercase">
+                    Game Tags & Genres
+                  </label>
+
+                  {/* PRESET TAG PILLS */}
+                  <div className="flex flex-wrap gap-1.5">
+                    {PRESET_TAG_OPTIONS.map((tag) => {
+                      const isSelected = (editingGame.tags || []).includes(tag);
+                      return (
+                        <button
+                          key={tag}
+                          type="button"
+                          onClick={() => toggleAdminTag(tag)}
+                          className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                            isSelected
+                              ? 'bg-fuchsia-600 text-white border border-fuchsia-400'
+                              : 'bg-white/5 hover:bg-white/10 text-slate-400 border border-white/10'
+                          }`}
+                        >
+                          {isSelected ? `✓ ${tag}` : `+ ${tag}`}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* CUSTOM TAG INPUT */}
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Type custom tag & hit Enter..."
+                      value={adminTagInput}
+                      onChange={(e) => setAdminTagInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleAddAdminCustomTag();
+                        }
+                      }}
+                      className="flex-1 px-3 py-2 rounded-xl bg-slate-900/80 border border-white/15 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-fuchsia-400"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleAddAdminCustomTag()}
+                      className="px-4 py-2 rounded-xl bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-bold text-xs cursor-pointer transition-all shrink-0"
+                    >
+                      Add Tag
+                    </button>
+                  </div>
+
+                  {/* SELECTED TAGS PILLS */}
+                  {editingGame.tags && editingGame.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      <span className="text-[10px] text-slate-400 self-center uppercase font-bold">Selected:</span>
+                      {editingGame.tags.map((t) => (
+                        <span
+                          key={t}
+                          className="px-2.5 py-1 rounded-full bg-fuchsia-500/20 border border-fuchsia-500/40 text-fuchsia-300 text-xs font-bold flex items-center gap-1.5"
+                        >
+                          <span>{t}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveAdminTag(t)}
+                            className="hover:text-white cursor-pointer"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* SECTION 3: DETAILED DESCRIPTION & INSTRUCTIONS */}
+              <div className="p-5 rounded-2xl bg-black/40 border border-white/10 space-y-3">
+                <h4 className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-2 border-b border-white/5 pb-2">
+                  <FileText className="w-4 h-4 text-amber-400" />
+                  <span>3. Gameplay Instructions & Storyline</span>
+                </h4>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-300 mb-1.5 uppercase">
+                    Detailed Long Description & Controls Guide
+                  </label>
+                  <textarea
+                    rows={4}
+                    placeholder="Explain gameplay mechanics, controls (Keyboard/Touch/Gamepad), power-ups, storyline, and features in detail..."
+                    value={editingGame.longDescription || ''}
+                    onChange={(e) => setEditingGame({ ...editingGame, longDescription: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-900/80 border border-white/15 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-400"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1 uppercase">
-                    Play URL *
-                  </label>
-                  <input
-                    type="url"
-                    required
-                    value={editingGame.playUrl || ''}
-                    onChange={(e) => setEditingGame({ ...editingGame, playUrl: e.target.value })}
-                    placeholder="https://play.gamepix.com/..."
-                    className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-xs text-white"
-                  />
+              {/* SECTION 4: DEVELOPER LINKS & OPTIONAL METADATA */}
+              <div className="p-5 rounded-2xl bg-black/40 border border-white/10 space-y-4">
+                <h4 className="text-xs font-bold text-pink-400 uppercase tracking-wider flex items-center gap-2 border-b border-white/5 pb-2">
+                  <Globe className="w-4 h-4 text-pink-400" />
+                  <span>4. Developer Contact Links & AI Metadata</span>
+                </h4>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-300 mb-1.5 uppercase">
+                      Contact Email (Optional)
+                    </label>
+                    <input
+                      type="email"
+                      placeholder="developer@studio.com"
+                      value={editingGame.developerEmail || ''}
+                      onChange={(e) => setEditingGame({ ...editingGame, developerEmail: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-900/80 border border-white/15 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-pink-400"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-300 mb-1.5 uppercase">
+                      Developer Website URL (Optional)
+                    </label>
+                    <input
+                      type="url"
+                      placeholder="https://studio.com"
+                      value={editingGame.developerWebsite || ''}
+                      onChange={(e) => setEditingGame({ ...editingGame, developerWebsite: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-900/80 border border-white/15 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-pink-400"
+                    />
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1 uppercase">
-                    Thumbnail Image URL
+                  <label className="block text-[11px] font-bold text-slate-300 mb-1.5 uppercase">
+                    AI Project / Prompt Link (Optional)
                   </label>
                   <input
                     type="url"
-                    value={editingGame.thumbnail || ''}
-                    onChange={(e) => setEditingGame({ ...editingGame, thumbnail: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-xs text-white"
+                    placeholder="https://ai.studio/..."
+                    value={editingGame.aiPromptUsed || ''}
+                    onChange={(e) => setEditingGame({ ...editingGame, aiPromptUsed: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-900/80 border border-white/15 text-xs text-cyan-300 font-mono placeholder:text-slate-500 focus:outline-none focus:border-pink-400"
                   />
+                  <p className="text-[10px] text-slate-500 mt-1">
+                    Optionally attach the AI prompt thread URL used to build or generate this HTML5 game.
+                  </p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1 uppercase">
-                    Category *
-                  </label>
-                  <select
-                    value={editingGame.category || categories[0]?.slug}
-                    onChange={(e) => setEditingGame({ ...editingGame, category: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-xs text-white"
-                  >
-                    {categories.map((c) => (
-                      <option key={c.id} value={c.slug} className="bg-[#0b0d16] text-white">
-                        {c.name}
+              {/* SECTION 5: PUBLISHING FLAGS & PORTAL VISIBILITY */}
+              <div className="p-5 rounded-2xl bg-black/40 border border-white/10 space-y-4">
+                <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-2 border-b border-white/5 pb-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <span>5. Portal Status & Highlight Flags</span>
+                </h4>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-300 mb-1.5 uppercase">
+                      Game Visibility Status
+                    </label>
+                    <select
+                      value={editingGame.status || 'active'}
+                      onChange={(e) =>
+                        setEditingGame({ ...editingGame, status: e.target.value as 'active' | 'hidden' | 'draft' })
+                      }
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-900/80 border border-white/15 text-xs text-emerald-400 font-bold focus:outline-none"
+                    >
+                      <option value="active" className="bg-[#0b0d16] text-emerald-400">
+                        Active (Published on Main Site)
                       </option>
-                    ))}
-                  </select>
-                </div>
+                      <option value="hidden" className="bg-[#0b0d16] text-amber-400">
+                        Hidden (Unlisted / Direct Link Only)
+                      </option>
+                      <option value="draft" className="bg-[#0b0d16] text-slate-400">
+                        Draft (Admin Review Only)
+                      </option>
+                    </select>
+                  </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1 uppercase">
-                    Orientation
-                  </label>
-                  <select
-                    value={editingGame.orientation || 'landscape'}
-                    onChange={(e) =>
-                      setEditingGame({
-                        ...editingGame,
-                        orientation: e.target.value as 'portrait' | 'landscape',
-                      })
-                    }
-                    className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-xs text-white"
-                  >
-                    <option value="landscape" className="bg-[#0b0d16] text-white">
-                      Landscape
-                    </option>
-                    <option value="portrait" className="bg-[#0b0d16] text-white">
-                      Portrait
-                    </option>
-                  </select>
-                </div>
+                  <div className="flex flex-wrap items-center gap-6 pt-3 sm:pt-0">
+                    <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-200">
+                      <input
+                        type="checkbox"
+                        checked={!!editingGame.trending}
+                        onChange={(e) => setEditingGame({ ...editingGame, trending: e.target.checked })}
+                        className="w-4 h-4 accent-purple-500 rounded"
+                      />
+                      <span>Trending (HOT)</span>
+                    </label>
 
-                <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1 uppercase">
-                    Version
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. 1.2.0"
-                    value={editingGame.version || ''}
-                    onChange={(e) => setEditingGame({ ...editingGame, version: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-xs text-white font-mono"
-                  />
-                </div>
+                    <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-200">
+                      <input
+                        type="checkbox"
+                        checked={!!editingGame.featured}
+                        onChange={(e) => setEditingGame({ ...editingGame, featured: e.target.checked })}
+                        className="w-4 h-4 accent-cyan-500 rounded"
+                      />
+                      <span>Featured Banner</span>
+                    </label>
 
-                <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1 uppercase">
-                    Weight (MB)
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. 15 MB"
-                    value={editingGame.weight || ''}
-                    onChange={(e) => setEditingGame({ ...editingGame, weight: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-xs text-white font-mono"
-                  />
+                    <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-200">
+                      <input
+                        type="checkbox"
+                        checked={editingGame.recentlyAdded !== false}
+                        onChange={(e) => setEditingGame({ ...editingGame, recentlyAdded: e.target.checked })}
+                        className="w-4 h-4 accent-fuchsia-500 rounded"
+                      />
+                      <span>Recently Added</span>
+                    </label>
+                  </div>
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1 uppercase">
-                  Features (Comma Separated)
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. 60 FPS, Touch Controls, High Score Leaderboards"
-                  value={
-                    Array.isArray(editingGame.features)
-                      ? editingGame.features.join(', ')
-                      : editingGame.features || ''
-                  }
-                  onChange={(e) => setEditingGame({ ...editingGame, features: e.target.value as any })}
-                  className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-xs text-white"
-                />
+              {/* SAVE BUTTON */}
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsGameModalOpen(false)}
+                  className="px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-bold text-xs uppercase transition-all cursor-pointer"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-purple-600 via-fuchsia-600 to-cyan-500 hover:from-purple-500 hover:to-cyan-400 text-slate-950 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(6,182,212,0.4)] transition-all cursor-pointer"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>Save & Publish Game Record</span>
+                </button>
               </div>
-
-              <div className="flex items-center gap-6 pt-1">
-                <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-300">
-                  <input
-                    type="checkbox"
-                    checked={!!editingGame.trending}
-                    onChange={(e) =>
-                      setEditingGame({ ...editingGame, trending: e.target.checked })
-                    }
-                    className="accent-purple-500"
-                  />
-                  <span>Trending (HOT)</span>
-                </label>
-
-                <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-300">
-                  <input
-                    type="checkbox"
-                    checked={!!editingGame.featured}
-                    onChange={(e) =>
-                      setEditingGame({ ...editingGame, featured: e.target.checked })
-                    }
-                    className="accent-cyan-500"
-                  />
-                  <span>Featured</span>
-                </label>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1 uppercase">
-                  Short Description
-                </label>
-                <textarea
-                  rows={2}
-                  value={editingGame.description || ''}
-                  onChange={(e) =>
-                    setEditingGame({ ...editingGame, description: e.target.value })
-                  }
-                  className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-xs text-white"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1 uppercase">
-                  Detailed Long Description & Instructions
-                </label>
-                <textarea
-                  rows={4}
-                  value={editingGame.longDescription || ''}
-                  onChange={(e) =>
-                    setEditingGame({ ...editingGame, longDescription: e.target.value })
-                  }
-                  placeholder="Explain gameplay mechanics, controls, power-ups, storyline, and features in detail..."
-                  className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-xs text-white"
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-cyan-500 text-slate-950 font-black text-xs uppercase"
-              >
-                Save Game Record
-              </button>
             </form>
           </div>
         </div>
