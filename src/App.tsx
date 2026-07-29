@@ -7,7 +7,6 @@ import React, { useState, useEffect } from 'react';
 import {
   Category,
   ContactSubmission,
-  FAQItem,
   Game,
   GameSubmission,
   NetworkAd,
@@ -22,7 +21,6 @@ import {
   adminLogout,
   fetchCategoriesFromStore,
   fetchContactsFromStore,
-  fetchFAQsFromStore,
   fetchGamesFromStore,
   fetchNetworkAdsFromStore,
   fetchSettingsFromStore,
@@ -77,7 +75,6 @@ export default function App() {
   const [networkAds, setNetworkAds] = useState<NetworkAd[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [sponsors, setSponsors] = useState<Sponsor[]>([]);
-  const [faqs, setFaqs] = useState<FAQItem[]>([]);
   const [submissions, setSubmissions] = useState<GameSubmission[]>([]);
   const [contacts, setContacts] = useState<ContactSubmission[]>([]);
   const [settings, setSettings] = useState<SiteSettings>({
@@ -121,7 +118,6 @@ export default function App() {
       fetchedNetworkAds,
       fetchedCats,
       fetchedSponsors,
-      fetchedFaqs,
       fetchedSettings,
       fetchedSubs,
       fetchedContacts,
@@ -132,7 +128,6 @@ export default function App() {
       fetchNetworkAdsFromStore(),
       fetchCategoriesFromStore(),
       fetchSponsorsFromStore(),
-      fetchFAQsFromStore(),
       fetchSettingsFromStore(),
       fetchSubmissionsFromStore(),
       fetchContactsFromStore(),
@@ -144,7 +139,6 @@ export default function App() {
     setNetworkAds(fetchedNetworkAds);
     setCategories(fetchedCats);
     setSponsors(fetchedSponsors);
-    setFaqs(fetchedFaqs);
     setSettings(fetchedSettings);
     setSubmissions(fetchedSubs);
     setContacts(fetchedContacts);
@@ -414,7 +408,7 @@ export default function App() {
                 <UpcomingGamesSection upcomingGames={upcomingGames} />
 
                 {/* FAQ Section */}
-                <FAQSection faqs={faqs} />
+                <FAQSection />
               </>
             )}
           </div>
@@ -536,7 +530,6 @@ export default function App() {
                 categories={categories}
                 submissions={submissions}
                 contacts={contacts}
-                faqs={faqs}
                 settings={settings}
                 onRefreshData={loadAllData}
                 onLogout={async () => {

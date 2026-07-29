@@ -1,4 +1,4 @@
-import { Category, ContactSubmission, FAQItem, Game, GameSubmission, NetworkAd, SiteSettings, Sponsor, SponsorAd, UpcomingGame } from '../types';
+import { Category, ContactSubmission, Game, GameSubmission, NetworkAd, SiteSettings, Sponsor, SponsorAd, UpcomingGame } from '../types';
 
 export const INITIAL_SETTINGS: SiteSettings = {
   websiteName: 'TONIC GAMES',
@@ -227,33 +227,6 @@ export const INITIAL_GAMES: Game[] = [
 ];
 
 export const INITIAL_SPONSORS: Sponsor[] = [];
-
-export const INITIAL_FAQS: FAQItem[] = [
-  {
-    id: 'faq-1',
-    question: 'Are all games on GAMES TONIC completely free to play?',
-    answer: 'Yes! Every single game hosted on GAMES TONIC is 100% free with unlimited play sessions directly in your desktop or mobile web browser.',
-    order: 1,
-  },
-  {
-    id: 'faq-2',
-    question: 'Do I need to download or install any files?',
-    answer: 'No installation required! GAMES TONIC utilizes modern HTML5 and WebGL web technology, allowing instant gameplay without storing game files on your device.',
-    order: 2,
-  },
-  {
-    id: 'faq-3',
-    question: 'Can I play games on mobile phones and tablets?',
-    answer: 'Absolutely. GAMES TONIC is designed mobile-first. Games support both Portrait and Landscape screen orientations for seamless touch controls.',
-    order: 3,
-  },
-  {
-    id: 'faq-4',
-    question: 'How do I submit my HTML5 game to GAMES TONIC?',
-    answer: 'Developers can submit their HTML5 games via our Game Submission page. Our admin team reviews submissions and features approved titles.',
-    order: 4,
-  },
-];
 
 export const INITIAL_SUBMISSIONS: GameSubmission[] = [
   {

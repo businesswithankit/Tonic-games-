@@ -37,18 +37,16 @@ import {
   Layers,
   FileText,
 } from 'lucide-react';
-import { AdPosition, Category, ContactSubmission, FAQItem, Game, GameSubmission, NetworkAd, SiteSettings, SocialLink, SponsorAd, UpcomingGame } from '../../types';
+import { AdPosition, Category, ContactSubmission, Game, GameSubmission, NetworkAd, SiteSettings, SocialLink, SponsorAd, UpcomingGame } from '../../types';
 import {
   deleteCategoryFromStore,
   deleteContactFromStore,
-  deleteFAQFromStore,
   deleteGameFromStore,
   deleteNetworkAdFromStore,
   deleteSponsorAdFromStore,
   deleteSubmissionFromStore,
   deleteUpcomingGameFromStore,
   saveCategoryToStore,
-  saveFAQToStore,
   saveGameToStore,
   saveNetworkAdToStore,
   saveSettingsToStore,
@@ -79,7 +77,7 @@ interface AdminDashboardProps {
   categories: Category[];
   submissions: GameSubmission[];
   contacts?: ContactSubmission[];
-  faqs: FAQItem[];
+  faqs?: any[];
   settings: SiteSettings;
   onRefreshData: () => void;
   onLogout: () => void;
@@ -95,7 +93,6 @@ type AdminTab =
   | 'submissions'
   | 'messages'
   | 'categories'
-  | 'faqs'
   | 'settings';
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
@@ -106,7 +103,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   categories,
   submissions,
   contacts = [],
-  faqs,
   settings,
   onRefreshData,
   onLogout,
@@ -159,10 +155,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   // --- CATEGORY CRUD STATE ---
   const [editingCat, setEditingCat] = useState<Partial<Category> | null>(null);
   const [isCatModalOpen, setIsCatModalOpen] = useState(false);
-
-  // --- FAQ CRUD STATE ---
-  const [editingFAQ, setEditingFAQ] = useState<Partial<FAQItem> | null>(null);
-  const [isFAQModalOpen, setIsFAQModalOpen] = useState(false);
 
   // --- SETTINGS FORM STATE ---
   const [siteSettingsForm, setSiteSettingsForm] = useState<SiteSettings>({ ...settings });
@@ -300,32 +292,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const handleDeleteCategory = async (id: string) => {
     if (window.confirm('Delete this category?')) {
       await deleteCategoryFromStore(id);
-      onRefreshData();
-    }
-  };
-
-  // --- FAQ MODAL SUBMIT ---
-  const handleSaveFAQ = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingFAQ?.question || !editingFAQ?.answer) return;
-
-    await saveFAQToStore(
-      {
-        question: editingFAQ.question,
-        answer: editingFAQ.answer,
-        order: editingFAQ.order || faqs.length + 1,
-      },
-      editingFAQ.id
-    );
-
-    setIsFAQModalOpen(false);
-    setEditingFAQ(null);
-    onRefreshData();
-  };
-
-  const handleDeleteFAQ = async (id: string) => {
-    if (window.confirm('Delete this FAQ item?')) {
-      await deleteFAQFromStore(id);
       onRefreshData();
     }
   };
@@ -544,7 +510,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           { id: 'submissions', label: `Submissions (${submissions.length})`, icon: Inbox },
           { id: 'messages', label: `Messages (${contacts.length})`, icon: Mail },
           { id: 'categories', label: `Categories (${categories.length})`, icon: FolderTree },
-          { id: 'faqs', label: `FAQs (${faqs.length})`, icon: HelpCircle },
           { id: 'settings', label: 'Site Settings', icon: Settings },
         ].map((tab) => {
           const Icon = tab.icon;
@@ -1540,53 +1505,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </div>
       )}
 
-      {/* TAB 4: FAQs CRUD */}
-      {activeTab === 'faqs' && (
-        <div className="space-y-6 animate-fade-in">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-white">FAQ Items Management</h2>
-            <button
-              onClick={() => {
-                setEditingFAQ({ question: '', answer: '', order: faqs.length + 1 });
-                setIsFAQModalOpen(true);
-              }}
-              className="px-4 py-2 rounded-xl bg-purple-600 text-white font-bold text-xs uppercase flex items-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Add FAQ Question</span>
-            </button>
-          </div>
-
-          <div className="space-y-3">
-            {faqs.map((f) => (
-              <div key={f.id} className="glass-card p-5 rounded-2xl space-y-2">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-bold text-white text-sm">{f.question}</h4>
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={() => {
-                        setEditingFAQ({ ...f });
-                        setIsFAQModalOpen(true);
-                      }}
-                      className="p-1.5 rounded-lg bg-white/5 hover:bg-purple-500/20 text-slate-300"
-                    >
-                      <Edit2 className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteFAQ(f.id)}
-                      className="p-1.5 rounded-lg bg-white/5 hover:bg-red-500/20 text-slate-300"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-                <p className="text-xs text-slate-400 leading-relaxed">{f.answer}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* TAB 6: SETTINGS PANEL */}
       {activeTab === 'settings' && (
         <form onSubmit={handleSaveSettings} className="glass-card p-6 sm:p-8 rounded-3xl space-y-6">
@@ -2278,60 +2196,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 className="w-full py-3 rounded-xl bg-purple-600 text-white font-bold text-xs uppercase"
               >
                 Save Category
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* EDIT FAQ MODAL */}
-      {isFAQModalOpen && editingFAQ && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="w-full max-w-md bg-[#0e101a] border border-white/15 rounded-3xl p-6 space-y-4">
-            <div className="flex items-center justify-between border-b border-white/10 pb-3">
-              <h3 className="text-lg font-bold text-white">
-                {editingFAQ.id ? 'Edit FAQ Item' : 'New FAQ Item'}
-              </h3>
-              <button
-                onClick={() => setIsFAQModalOpen(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-white"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveFAQ} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1 uppercase">
-                  Question *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={editingFAQ.question || ''}
-                  onChange={(e) => setEditingFAQ({ ...editingFAQ, question: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-xs text-white"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1 uppercase">
-                  Answer *
-                </label>
-                <textarea
-                  rows={4}
-                  required
-                  value={editingFAQ.answer || ''}
-                  onChange={(e) => setEditingFAQ({ ...editingFAQ, answer: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-xs text-white"
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full py-3 rounded-xl bg-purple-600 text-white font-bold text-xs uppercase"
-              >
-                Save FAQ
               </button>
             </form>
           </div>

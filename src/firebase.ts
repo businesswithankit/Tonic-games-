@@ -27,7 +27,6 @@ import {
 import {
   INITIAL_CATEGORIES,
   INITIAL_CONTACTS,
-  INITIAL_FAQS,
   INITIAL_GAMES,
   INITIAL_SETTINGS,
   INITIAL_SPONSORS,
@@ -36,7 +35,7 @@ import {
   INITIAL_SUBMISSIONS,
   INITIAL_UPCOMING_GAMES,
 } from './data/initialData';
-import { Category, ContactSubmission, FAQItem, Game, GameSubmission, NetworkAd, SiteSettings, Sponsor, SponsorAd, UpcomingGame } from './types';
+import { Category, ContactSubmission, Game, GameSubmission, NetworkAd, SiteSettings, Sponsor, SponsorAd, UpcomingGame } from './types';
 
 // Provided Firebase config
 const firebaseConfig = {
@@ -132,7 +131,6 @@ function setStorage<T>(key: string, value: T): void {
 let localGames: Game[] = getStorage('gt_games', [...INITIAL_GAMES]);
 let localCategories: Category[] = getStorage('gt_categories', [...INITIAL_CATEGORIES]);
 let localSponsors: Sponsor[] = getStorage('gt_sponsors', [...INITIAL_SPONSORS]);
-let localFAQs: FAQItem[] = getStorage('gt_faqs', [...INITIAL_FAQS]);
 let localSubmissions: GameSubmission[] = getStorage('gt_submissions', [...INITIAL_SUBMISSIONS]);
 let localContacts: ContactSubmission[] = getStorage('gt_contacts', [...INITIAL_CONTACTS]);
 let localUpcomingGames: UpcomingGame[] = getStorage('gt_upcoming_games', [...INITIAL_UPCOMING_GAMES]);
@@ -332,49 +330,6 @@ export async function deleteSponsorFromStore(id: string): Promise<boolean> {
     handleFirestoreError(err, OperationType.DELETE, `sponsors/${id}`);
   }
   localSponsors = localSponsors.filter((s) => s.id !== id);
-  return true;
-}
-
-// --- FAQ FIRESTORE HELPERS ---
-export async function fetchFAQsFromStore(): Promise<FAQItem[]> {
-  try {
-    const snapshot = await getDocs(collection(db, 'faq'));
-    if (!snapshot.empty) {
-      const items: FAQItem[] = [];
-      snapshot.forEach((docSnap) => {
-        items.push({ id: docSnap.id, ...docSnap.data() } as FAQItem);
-      });
-      items.sort((a, b) => a.order - b.order);
-      localFAQs = items;
-      return items;
-    }
-  } catch (err) {
-    handleFirestoreError(err, OperationType.LIST, 'faq');
-  }
-  return localFAQs;
-}
-
-export async function saveFAQToStore(faqData: Omit<FAQItem, 'id'>, id?: string): Promise<FAQItem> {
-  const faqId = id || 'faq-' + Date.now();
-  const faq: FAQItem = { ...faqData, id: faqId };
-  try {
-    await setDoc(doc(db, 'faq', faqId), faq, { merge: true });
-  } catch (err) {
-    handleFirestoreError(err, id ? OperationType.UPDATE : OperationType.CREATE, `faq/${faqId}`);
-  }
-  const idx = localFAQs.findIndex((f) => f.id === faqId);
-  if (idx !== -1) localFAQs[idx] = faq;
-  else localFAQs.push(faq);
-  return faq;
-}
-
-export async function deleteFAQFromStore(id: string): Promise<boolean> {
-  try {
-    await deleteDoc(doc(db, 'faq', id));
-  } catch (err) {
-    handleFirestoreError(err, OperationType.DELETE, `faq/${id}`);
-  }
-  localFAQs = localFAQs.filter((f) => f.id !== id);
   return true;
 }
 
