@@ -19,6 +19,9 @@ export interface Game {
   views?: number;
   createdTime: string;
   updatedTime: string;
+  aiPromptUsed?: string;
+  platforms?: string[];
+  tags?: string[];
 }
 
 export interface Category {
@@ -126,6 +129,8 @@ export interface SiteSettings {
   submissionButtonLink: string;
   contactButtonLink: string;
   // Legal & Policy Pages Custom Content
+  privacyPolicyContent?: string;
+  termsContent?: string;
   aboutUsContent?: string;
   communityGuidelinesContent?: string;
   gameSubmissionPolicyContent?: string;
@@ -182,4 +187,7 @@ export interface GameSubmission {
   orientation: 'portrait' | 'landscape';
   createdAt: string;
   status: 'pending' | 'approved' | 'rejected';
+  aiPromptUsed?: string;
+  platforms?: string[];
+  tags?: string[];
 }

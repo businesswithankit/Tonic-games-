@@ -245,6 +245,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         orientation: sub.orientation || 'landscape',
         playUrl: sub.playUrl,
         status: 'active',
+        aiPromptUsed: sub.aiPromptUsed,
+        platforms: sub.platforms,
+        tags: sub.tags,
         createdTime: new Date().toISOString(),
         updatedTime: new Date().toISOString(),
       });
@@ -1322,6 +1325,31 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     {sub.description}
                   </p>
 
+                  {/* Platforms & Tags badges if present */}
+                  {((sub.platforms && sub.platforms.length > 0) || (sub.tags && sub.tags.length > 0)) && (
+                    <div className="flex flex-wrap items-center gap-2 text-xs pt-1">
+                      {sub.platforms?.map((p) => (
+                        <span key={p} className="px-2 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-[10px] font-bold">
+                          {p}
+                        </span>
+                      ))}
+                      {sub.tags?.map((t) => (
+                        <span key={t} className="px-2 py-0.5 rounded bg-fuchsia-500/10 border border-fuchsia-500/30 text-fuchsia-300 text-[10px] font-semibold">
+                          #{t}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {sub.aiPromptUsed && (
+                    <div className="text-[11px] bg-purple-950/20 p-2.5 rounded-xl border border-purple-500/20 space-y-1">
+                      <span className="font-bold text-purple-300">AI Prompt Used:</span>
+                      <p className="text-slate-300 font-mono text-[10px] whitespace-pre-line max-h-20 overflow-y-auto">
+                        {sub.aiPromptUsed}
+                      </p>
+                    </div>
+                  )}
+
                   <div className="text-[11px] font-mono text-slate-400 truncate bg-white/5 px-3 py-1.5 rounded-lg border border-white/5">
                     Play URL: <span className="text-cyan-400">{sub.playUrl}</span>
                   </div>
@@ -1767,6 +1795,36 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
 
             <div className="grid grid-cols-1 gap-5">
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase">
+                  Privacy Policy Content
+                </label>
+                <textarea
+                  rows={4}
+                  value={siteSettingsForm.privacyPolicyContent || ''}
+                  onChange={(e) =>
+                    setSiteSettingsForm({ ...siteSettingsForm, privacyPolicyContent: e.target.value })
+                  }
+                  placeholder="Enter custom Privacy Policy content..."
+                  className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white text-xs focus:outline-none focus:border-cyan-400 font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase">
+                  Terms & Conditions Content
+                </label>
+                <textarea
+                  rows={4}
+                  value={siteSettingsForm.termsContent || ''}
+                  onChange={(e) =>
+                    setSiteSettingsForm({ ...siteSettingsForm, termsContent: e.target.value })
+                  }
+                  placeholder="Enter custom Terms & Conditions content..."
+                  className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white text-xs focus:outline-none focus:border-cyan-400 font-mono"
+                />
+              </div>
+
               <div>
                 <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase">
                   About Us Page Content

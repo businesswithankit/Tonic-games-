@@ -30,32 +30,40 @@ export const TermsPage: React.FC<PageProps> = ({ settings, onBack }) => {
       </div>
 
       <div className="glass-card p-6 sm:p-8 rounded-3xl space-y-6 text-sm text-slate-300 leading-relaxed">
-        <section className="space-y-2">
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <CheckCircle className="w-4 h-4 text-cyan-400" />
-            1. Acceptance of Terms
-          </h2>
-          <p>
-            By accessing and playing games on {settings.websiteName || 'TONIC GAMES'}, you agree to comply with these terms. All games are provided free of charge for personal entertainment.
-          </p>
-        </section>
+        {settings.termsContent ? (
+          <div className="whitespace-pre-line space-y-4">
+            {settings.termsContent}
+          </div>
+        ) : (
+          <>
+            <section className="space-y-2">
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-cyan-400" />
+                1. Acceptance of Terms
+              </h2>
+              <p>
+                By accessing and playing games on {settings.websiteName || 'TONIC GAMES'}, you agree to comply with these terms. All games are provided free of charge for personal entertainment.
+              </p>
+            </section>
 
-        <section className="space-y-2">
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 text-amber-400" />
-            2. External Game Hosting Disclaimer
-          </h2>
-          <p>
-            {settings.websiteName || 'TONIC GAMES'} does not store game executable binaries or proprietary assets on local servers. Each game runs via direct Play URLs provided by their respective copyright holders.
-          </p>
-        </section>
+            <section className="space-y-2">
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-amber-400" />
+                2. External Game Hosting Disclaimer
+              </h2>
+              <p>
+                {settings.websiteName || 'TONIC GAMES'} does not store game executable binaries or proprietary assets on local servers. Each game runs via direct Play URLs provided by their respective copyright holders.
+              </p>
+            </section>
 
-        <section className="space-y-2">
-          <h2 className="text-lg font-bold text-white">3. Intellectual Property Rights</h2>
-          <p>
-            All game titles, trademarks, and artwork belong to their original developers. If you are a rights holder and wish to request removal of a link, please submit a notice via the Contact page.
-          </p>
-        </section>
+            <section className="space-y-2">
+              <h2 className="text-lg font-bold text-white">3. Intellectual Property Rights</h2>
+              <p>
+                All game titles, trademarks, and artwork belong to their original developers. If you are a rights holder and wish to request removal of a link, please submit a notice via the Contact page.
+              </p>
+            </section>
+          </>
+        )}
       </div>
     </div>
   );
