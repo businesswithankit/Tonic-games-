@@ -17,14 +17,18 @@ import {
   Code2,
   ShieldCheck,
   Zap,
+  ShieldAlert,
+  X,
+  ExternalLink,
 } from 'lucide-react';
-import { Category, SiteSettings } from '../../types';
+import { Category, PageView, SiteSettings } from '../../types';
 import { saveSubmissionToStore } from '../../firebase';
 
 interface PageProps {
   settings: SiteSettings;
   categories: Category[];
   onBack: () => void;
+  onNavigate?: (page: PageView) => void;
   onRefreshData?: () => void;
 }
 
@@ -32,6 +36,7 @@ export const SubmissionPage: React.FC<PageProps> = ({
   settings,
   categories,
   onBack,
+  onNavigate,
   onRefreshData,
 }) => {
   const [formData, setFormData] = useState({
@@ -51,10 +56,22 @@ export const SubmissionPage: React.FC<PageProps> = ({
 
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [showPolicyModal, setShowPolicyModal] = useState(false);
+  const [policyAccepted, setPolicyAccepted] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // When user clicks Submit Game button on form
+  const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.gameTitle || !formData.playUrl || !formData.developerName) return;
+
+    // Reset policy acceptance and show modal
+    setPolicyAccepted(false);
+    setShowPolicyModal(true);
+  };
+
+  // Triggered from modal after checking checkbox & clicking Accept & Submit
+  const handleAcceptAndSubmit = async () => {
+    if (!policyAccepted) return;
 
     setSubmitting(true);
     try {
@@ -81,6 +98,7 @@ export const SubmissionPage: React.FC<PageProps> = ({
         status: 'pending',
       });
 
+      setShowPolicyModal(false);
       setSubmitted(true);
       if (onRefreshData) onRefreshData();
     } catch (err) {
@@ -92,6 +110,8 @@ export const SubmissionPage: React.FC<PageProps> = ({
 
   const handleReset = () => {
     setSubmitted(false);
+    setShowPolicyModal(false);
+    setPolicyAccepted(false);
     setFormData({
       gameTitle: '',
       version: '1.0.0',
@@ -160,7 +180,7 @@ export const SubmissionPage: React.FC<PageProps> = ({
             </div>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleFormSubmit} className="space-y-6">
             <div className="border-b border-white/10 pb-3">
               <h2 className="text-base font-bold text-white flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-cyan-400" />
@@ -440,6 +460,104 @@ export const SubmissionPage: React.FC<PageProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Mandatory Policy Acceptance Confirmation Modal Popup */}
+      {showPolicyModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+          <div className="relative w-full max-w-lg bg-[#0c0e1a] border border-white/15 rounded-3xl p-6 sm:p-8 shadow-[0_0_50px_rgba(217,70,239,0.3)] space-y-6">
+            {/* Close X Button */}
+            <button
+              onClick={() => setShowPolicyModal(false)}
+              className="absolute top-4 right-4 p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all cursor-pointer"
+              title="Close Popup"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Modal Icon & Header */}
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-fuchsia-500 to-cyan-500 p-[2px] shrink-0">
+                <div className="w-full h-full bg-[#0a0b14] rounded-[14px] flex items-center justify-center">
+                  <ShieldAlert className="w-6 h-6 text-fuchsia-400" />
+                </div>
+              </div>
+              <div>
+                <h3 className="text-xl font-black text-white">Accept Website Policies</h3>
+                <p className="text-xs text-fuchsia-400 font-semibold uppercase tracking-wider">
+                  Mandatory Submission Confirmation
+                </p>
+              </div>
+            </div>
+
+            {/* Confirmation Message */}
+            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-xs sm:text-sm text-slate-300 leading-relaxed space-y-2">
+              <p>
+                Before submitting your game, please read and accept our policies. By continuing, you confirm that you own the rights to this game or have permission to submit it.
+              </p>
+            </div>
+
+            {/* Required Checkbox */}
+            <div className="p-4 rounded-2xl bg-fuchsia-500/10 border border-fuchsia-500/30 text-xs text-slate-200">
+              <label className="flex items-start gap-3 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  required
+                  checked={policyAccepted}
+                  onChange={(e) => setPolicyAccepted(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 accent-fuchsia-500 rounded cursor-pointer shrink-0"
+                />
+                <span className="leading-snug">
+                  I have read and agree to the{' '}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (onNavigate) onNavigate('submission-policy');
+                    }}
+                    className="text-fuchsia-400 font-bold underline hover:text-fuchsia-300 inline-flex items-center gap-0.5 cursor-pointer"
+                  >
+                    <span>Game Submission Policy</span>
+                    <ExternalLink className="w-3 h-3 inline" />
+                  </button>{' '}
+                  and{' '}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (onNavigate) onNavigate('community-guidelines');
+                    }}
+                    className="text-cyan-400 font-bold underline hover:text-cyan-300 inline-flex items-center gap-0.5 cursor-pointer"
+                  >
+                    <span>Community Guidelines</span>
+                    <ExternalLink className="w-3 h-3 inline" />
+                  </button>
+                  .
+                </span>
+              </label>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="flex flex-col sm:flex-row items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowPolicyModal(false)}
+                className="w-full sm:w-auto px-5 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white font-bold text-xs uppercase cursor-pointer transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={!policyAccepted || submitting}
+                onClick={handleAcceptAndSubmit}
+                className="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-fuchsia-500 via-purple-600 to-cyan-500 text-slate-950 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(217,70,239,0.4)] hover:scale-105 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <Send className="w-4 h-4 text-slate-950" />
+                <span>{submitting ? 'Submitting...' : 'Accept & Submit'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

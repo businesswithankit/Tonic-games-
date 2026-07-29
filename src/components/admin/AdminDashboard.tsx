@@ -35,6 +35,7 @@ import {
   Code2,
   MousePointerClick,
   Layers,
+  FileText,
 } from 'lucide-react';
 import { AdPosition, Category, ContactSubmission, FAQItem, Game, GameSubmission, NetworkAd, SiteSettings, SocialLink, SponsorAd, UpcomingGame } from '../../types';
 import {
@@ -1750,6 +1751,105 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <p className="text-[11px] text-slate-400 mt-1.5">
                 This URL is used by the "Games Submission" button across the website so developers can submit their HTML5 games directly.
               </p>
+            </div>
+          </div>
+
+          {/* LEGAL & POLICY PAGES CONTENT SECTION */}
+          <div className="space-y-4 pt-6 border-t border-white/10">
+            <div>
+              <h3 className="text-sm font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-2">
+                <FileText className="w-4 h-4 text-cyan-400" />
+                <span>Legal & Policy Pages Custom Content</span>
+              </h3>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Customize the text displayed on the public legal pages. Leaving a field empty will display the default rich template.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-5">
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase">
+                  About Us Page Content
+                </label>
+                <textarea
+                  rows={4}
+                  value={siteSettingsForm.aboutUsContent || ''}
+                  onChange={(e) =>
+                    setSiteSettingsForm({ ...siteSettingsForm, aboutUsContent: e.target.value })
+                  }
+                  placeholder="Enter custom About Us content..."
+                  className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white text-xs focus:outline-none focus:border-cyan-400 font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase">
+                  Community Guidelines Content
+                </label>
+                <textarea
+                  rows={4}
+                  value={siteSettingsForm.communityGuidelinesContent || ''}
+                  onChange={(e) =>
+                    setSiteSettingsForm({
+                      ...siteSettingsForm,
+                      communityGuidelinesContent: e.target.value,
+                    })
+                  }
+                  placeholder="Enter custom Community Guidelines rules and standards..."
+                  className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white text-xs focus:outline-none focus:border-cyan-400 font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase">
+                  Game Submission Policy Content
+                </label>
+                <textarea
+                  rows={4}
+                  value={siteSettingsForm.gameSubmissionPolicyContent || ''}
+                  onChange={(e) =>
+                    setSiteSettingsForm({
+                      ...siteSettingsForm,
+                      gameSubmissionPolicyContent: e.target.value,
+                    })
+                  }
+                  placeholder="Enter custom Developer Game Submission Policy terms..."
+                  className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white text-xs focus:outline-none focus:border-cyan-400 font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase">
+                  DMCA / Copyright Policy Content
+                </label>
+                <textarea
+                  rows={4}
+                  value={siteSettingsForm.dmcaPolicyContent || ''}
+                  onChange={(e) =>
+                    setSiteSettingsForm({ ...siteSettingsForm, dmcaPolicyContent: e.target.value })
+                  }
+                  placeholder="Enter custom DMCA take-down compliance policy text..."
+                  className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white text-xs focus:outline-none focus:border-cyan-400 font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase">
+                  Copyright Removal Request Header Notice
+                </label>
+                <textarea
+                  rows={4}
+                  value={siteSettingsForm.copyrightRemovalContent || ''}
+                  onChange={(e) =>
+                    setSiteSettingsForm({
+                      ...siteSettingsForm,
+                      copyrightRemovalContent: e.target.value,
+                    })
+                  }
+                  placeholder="Enter custom instructions or legal notices for the Copyright Removal Request page..."
+                  className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white text-xs focus:outline-none focus:border-cyan-400 font-mono"
+                />
+              </div>
             </div>
           </div>
 

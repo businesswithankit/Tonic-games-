@@ -125,9 +125,27 @@ export interface SiteSettings {
   rateButtonLink: string;
   submissionButtonLink: string;
   contactButtonLink: string;
+  // Legal & Policy Pages Custom Content
+  aboutUsContent?: string;
+  communityGuidelinesContent?: string;
+  gameSubmissionPolicyContent?: string;
+  dmcaPolicyContent?: string;
+  copyrightRemovalContent?: string;
 }
 
-export type PageView = 'home' | 'privacy' | 'terms' | 'contact' | 'submission' | 'admin' | 'game';
+export type PageView =
+  | 'home'
+  | 'privacy'
+  | 'terms'
+  | 'contact'
+  | 'submission'
+  | 'admin'
+  | 'game'
+  | 'about'
+  | 'community-guidelines'
+  | 'submission-policy'
+  | 'dmca'
+  | 'copyright-removal';
 
 export interface RecentPlayItem {
   id: string;

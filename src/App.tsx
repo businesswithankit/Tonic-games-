@@ -47,6 +47,11 @@ import { PrivacyPolicyPage } from './components/pages/PrivacyPolicy';
 import { TermsPage } from './components/pages/TermsPage';
 import { ContactPage } from './components/pages/ContactPage';
 import { SubmissionPage } from './components/pages/SubmissionPage';
+import { AboutUsPage } from './components/pages/AboutUsPage';
+import { CommunityGuidelinesPage } from './components/pages/CommunityGuidelinesPage';
+import { GameSubmissionPolicyPage } from './components/pages/GameSubmissionPolicyPage';
+import { DMCAPage } from './components/pages/DMCAPage';
+import { CopyrightRemovalPage } from './components/pages/CopyrightRemovalPage';
 import { AdminLogin } from './components/admin/AdminLogin';
 import { AdminDashboard } from './components/admin/AdminDashboard';
 import {
@@ -430,7 +435,63 @@ export default function App() {
           />
         )}
 
-        {/* Page Views: Privacy, Terms, Contact, Submission, Admin */}
+        {/* Page Views: Privacy, Terms, Contact, Submission, About, Guidelines, Policy, DMCA, Removal, Admin */}
+        {activePage === 'about' && (
+          <AboutUsPage
+            settings={settings}
+            onBack={() => setActivePage('home')}
+            onNavigate={(p) => {
+              setActivePage(p);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          />
+        )}
+
+        {activePage === 'community-guidelines' && (
+          <CommunityGuidelinesPage
+            settings={settings}
+            onBack={() => setActivePage('home')}
+            onNavigate={(p) => {
+              setActivePage(p);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          />
+        )}
+
+        {activePage === 'submission-policy' && (
+          <GameSubmissionPolicyPage
+            settings={settings}
+            onBack={() => setActivePage('home')}
+            onNavigate={(p) => {
+              setActivePage(p);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          />
+        )}
+
+        {activePage === 'dmca' && (
+          <DMCAPage
+            settings={settings}
+            onBack={() => setActivePage('home')}
+            onNavigate={(p) => {
+              setActivePage(p);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          />
+        )}
+
+        {activePage === 'copyright-removal' && (
+          <CopyrightRemovalPage
+            settings={settings}
+            onBack={() => setActivePage('home')}
+            onNavigate={(p) => {
+              setActivePage(p);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onRefreshData={loadAllData}
+          />
+        )}
+
         {activePage === 'privacy' && (
           <PrivacyPolicyPage settings={settings} onBack={() => setActivePage('home')} />
         )}
@@ -452,6 +513,10 @@ export default function App() {
             settings={settings}
             categories={categories}
             onBack={() => setActivePage('home')}
+            onNavigate={(p) => {
+              setActivePage(p);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
             onRefreshData={loadAllData}
           />
         )}

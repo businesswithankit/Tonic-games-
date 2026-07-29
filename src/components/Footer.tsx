@@ -126,46 +126,73 @@ export const Footer: React.FC<FooterProps> = ({ settings, activePage, setActiveP
           </div>
 
           {/* Pages / Legal Links */}
-          <div className="space-y-3">
-            <h4 className="text-xs font-black uppercase tracking-wider text-purple-400">Legal & Support</h4>
-            <ul className="space-y-2 text-xs font-medium text-slate-400">
-              <li>
-                <button
-                  onClick={() => setActivePage('privacy')}
-                  className="hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer"
-                >
-                  <Shield className="w-3.5 h-3.5 text-purple-400" />
-                  Privacy Policy
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => setActivePage('terms')}
-                  className="hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer"
-                >
-                  <FileText className="w-3.5 h-3.5 text-purple-400" />
-                  Terms & Conditions
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => setActivePage('contact')}
-                  className="hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer"
-                >
-                  <Mail className="w-3.5 h-3.5 text-cyan-400" />
-                  Contact Us
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => setActivePage('submission')}
-                  className="hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer"
-                >
-                  <Send className="w-3.5 h-3.5 text-pink-400" />
-                  Developer Game Submission
-                </button>
-              </li>
-            </ul>
+          <div className="space-y-3 md:col-span-1">
+            <h4 className="text-xs font-black uppercase tracking-wider text-purple-400">Legal & Policies</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-medium text-slate-400">
+              <button
+                onClick={() => setActivePage('about')}
+                className="hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer text-left"
+              >
+                <Gamepad2 className="w-3.5 h-3.5 text-cyan-400" />
+                About Us
+              </button>
+              <button
+                onClick={() => setActivePage('community-guidelines')}
+                className="hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer text-left"
+              >
+                <Shield className="w-3.5 h-3.5 text-cyan-400" />
+                Community Guidelines
+              </button>
+              <button
+                onClick={() => setActivePage('submission-policy')}
+                className="hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer text-left"
+              >
+                <FileText className="w-3.5 h-3.5 text-fuchsia-400" />
+                Submission Policy
+              </button>
+              <button
+                onClick={() => setActivePage('dmca')}
+                className="hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer text-left"
+              >
+                <Shield className="w-3.5 h-3.5 text-purple-400" />
+                DMCA / Copyright Policy
+              </button>
+              <button
+                onClick={() => setActivePage('copyright-removal')}
+                className="hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer text-left"
+              >
+                <FileText className="w-3.5 h-3.5 text-pink-400" />
+                Copyright Removal Request
+              </button>
+              <button
+                onClick={() => setActivePage('privacy')}
+                className="hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer text-left"
+              >
+                <Shield className="w-3.5 h-3.5 text-slate-400" />
+                Privacy Policy
+              </button>
+              <button
+                onClick={() => setActivePage('terms')}
+                className="hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer text-left"
+              >
+                <FileText className="w-3.5 h-3.5 text-slate-400" />
+                Terms & Conditions
+              </button>
+              <button
+                onClick={() => setActivePage('contact')}
+                className="hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer text-left"
+              >
+                <Mail className="w-3.5 h-3.5 text-cyan-400" />
+                Contact Us
+              </button>
+              <button
+                onClick={() => setActivePage('submission')}
+                className="hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer text-left sm:col-span-2"
+              >
+                <Send className="w-3.5 h-3.5 text-pink-400" />
+                Developer Game Submission
+              </button>
+            </div>
           </div>
         </div>
 
