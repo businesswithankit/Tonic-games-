@@ -153,14 +153,30 @@ export async function fetchGamesFromStore(): Promise<Game[]> {
   try {
     const q = query(collection(db, 'games'));
     const snapshot = await getDocs(q);
-    if (!snapshot.empty) {
-      const items: Game[] = [];
-      snapshot.forEach((docSnap) => {
-        items.push({ id: docSnap.id, ...docSnap.data() } as Game);
-      });
+    const items: Game[] = [];
+    snapshot.forEach((docSnap) => {
+      items.push({ id: docSnap.id, ...docSnap.data() } as Game);
+    });
+    if (items.length > 0) {
       localGames = items;
       setStorage('gt_games', localGames);
+      setStorage('gt_games_seeded', true);
       return items;
+    } else {
+      const isSeeded = getStorage<boolean>('gt_games_seeded', false);
+      if (!isSeeded && localGames.length > 0) {
+        for (const g of localGames) {
+          try {
+            await setDoc(doc(db, 'games', g.id), g);
+          } catch (_) {}
+        }
+        setStorage('gt_games_seeded', true);
+        return localGames;
+      } else if (isSeeded) {
+        localGames = [];
+        setStorage('gt_games', localGames);
+        return [];
+      }
     }
   } catch (err) {
     handleFirestoreError(err, OperationType.LIST, 'games');
@@ -204,6 +220,7 @@ export async function saveGameToStore(gameData: Omit<Game, 'id'>, id?: string): 
     localGames.unshift(resultGame);
   }
   setStorage('gt_games', localGames);
+  setStorage('gt_games_seeded', true);
   return resultGame;
 }
 
@@ -215,6 +232,7 @@ export async function deleteGameFromStore(id: string): Promise<boolean> {
   }
   localGames = localGames.filter((g) => g.id !== id);
   setStorage('gt_games', localGames);
+  setStorage('gt_games_seeded', true);
   return true;
 }
 
@@ -239,14 +257,31 @@ export async function incrementGameViews(id: string): Promise<number> {
 export async function fetchCategoriesFromStore(): Promise<Category[]> {
   try {
     const snapshot = await getDocs(collection(db, 'categories'));
-    if (!snapshot.empty) {
-      const items: Category[] = [];
-      snapshot.forEach((docSnap) => {
-        items.push({ id: docSnap.id, ...docSnap.data() } as Category);
-      });
-      items.sort((a, b) => a.order - b.order);
+    const items: Category[] = [];
+    snapshot.forEach((docSnap) => {
+      items.push({ id: docSnap.id, ...docSnap.data() } as Category);
+    });
+    items.sort((a, b) => a.order - b.order);
+    if (items.length > 0) {
       localCategories = items;
+      setStorage('gt_categories', localCategories);
+      setStorage('gt_categories_seeded', true);
       return items;
+    } else {
+      const isSeeded = getStorage<boolean>('gt_categories_seeded', false);
+      if (!isSeeded && localCategories.length > 0) {
+        for (const cat of localCategories) {
+          try {
+            await setDoc(doc(db, 'categories', cat.id), cat);
+          } catch (_) {}
+        }
+        setStorage('gt_categories_seeded', true);
+        return localCategories;
+      } else if (isSeeded) {
+        localCategories = [];
+        setStorage('gt_categories', localCategories);
+        return [];
+      }
     }
   } catch (err) {
     handleFirestoreError(err, OperationType.LIST, 'categories');
@@ -265,6 +300,8 @@ export async function saveCategoryToStore(catData: Omit<Category, 'id'>, id?: st
   const idx = localCategories.findIndex((c) => c.id === catId);
   if (idx !== -1) localCategories[idx] = cat;
   else localCategories.push(cat);
+  setStorage('gt_categories', localCategories);
+  setStorage('gt_categories_seeded', true);
   return cat;
 }
 
@@ -275,6 +312,8 @@ export async function deleteCategoryFromStore(id: string): Promise<boolean> {
     handleFirestoreError(err, OperationType.DELETE, `categories/${id}`);
   }
   localCategories = localCategories.filter((c) => c.id !== id);
+  setStorage('gt_categories', localCategories);
+  setStorage('gt_categories_seeded', true);
   return true;
 }
 
@@ -282,13 +321,30 @@ export async function deleteCategoryFromStore(id: string): Promise<boolean> {
 export async function fetchSponsorsFromStore(): Promise<Sponsor[]> {
   try {
     const snapshot = await getDocs(collection(db, 'sponsors'));
-    if (!snapshot.empty) {
-      const items: Sponsor[] = [];
-      snapshot.forEach((docSnap) => {
-        items.push({ id: docSnap.id, ...docSnap.data() } as Sponsor);
-      });
+    const items: Sponsor[] = [];
+    snapshot.forEach((docSnap) => {
+      items.push({ id: docSnap.id, ...docSnap.data() } as Sponsor);
+    });
+    if (items.length > 0) {
       localSponsors = items;
+      setStorage('gt_sponsors', localSponsors);
+      setStorage('gt_sponsors_seeded', true);
       return items;
+    } else {
+      const isSeeded = getStorage<boolean>('gt_sponsors_seeded', false);
+      if (!isSeeded && localSponsors.length > 0) {
+        for (const sp of localSponsors) {
+          try {
+            await setDoc(doc(db, 'sponsors', sp.id), sp);
+          } catch (_) {}
+        }
+        setStorage('gt_sponsors_seeded', true);
+        return localSponsors;
+      } else if (isSeeded) {
+        localSponsors = [];
+        setStorage('gt_sponsors', localSponsors);
+        return [];
+      }
     }
   } catch (err) {
     handleFirestoreError(err, OperationType.LIST, 'sponsors');
@@ -307,6 +363,8 @@ export async function saveSponsorToStore(sponsorData: Omit<Sponsor, 'id'>, id?: 
   const idx = localSponsors.findIndex((s) => s.id === sponId);
   if (idx !== -1) localSponsors[idx] = sponsor;
   else localSponsors.push(sponsor);
+  setStorage('gt_sponsors', localSponsors);
+  setStorage('gt_sponsors_seeded', true);
   return sponsor;
 }
 
@@ -320,6 +378,7 @@ export async function incrementSponsorClicks(id: string): Promise<void> {
   const idx = localSponsors.findIndex((s) => s.id === id);
   if (idx !== -1) {
     localSponsors[idx].clickCount = (localSponsors[idx].clickCount || 0) + 1;
+    setStorage('gt_sponsors', localSponsors);
   }
 }
 
@@ -330,6 +389,8 @@ export async function deleteSponsorFromStore(id: string): Promise<boolean> {
     handleFirestoreError(err, OperationType.DELETE, `sponsors/${id}`);
   }
   localSponsors = localSponsors.filter((s) => s.id !== id);
+  setStorage('gt_sponsors', localSponsors);
+  setStorage('gt_sponsors_seeded', true);
   return true;
 }
 
@@ -376,13 +437,30 @@ export async function saveSettingsToStore(newSettings: SiteSettings): Promise<Si
 export async function fetchSubmissionsFromStore(): Promise<GameSubmission[]> {
   try {
     const snapshot = await getDocs(collection(db, 'submissions'));
-    if (!snapshot.empty) {
-      const items: GameSubmission[] = [];
-      snapshot.forEach((docSnap) => {
-        items.push({ id: docSnap.id, ...docSnap.data() } as GameSubmission);
-      });
+    const items: GameSubmission[] = [];
+    snapshot.forEach((docSnap) => {
+      items.push({ id: docSnap.id, ...docSnap.data() } as GameSubmission);
+    });
+    if (items.length > 0) {
       localSubmissions = items;
+      setStorage('gt_submissions', localSubmissions);
+      setStorage('gt_submissions_seeded', true);
       return items;
+    } else {
+      const isSeeded = getStorage<boolean>('gt_submissions_seeded', false);
+      if (!isSeeded && localSubmissions.length > 0) {
+        for (const sub of localSubmissions) {
+          try {
+            await setDoc(doc(db, 'submissions', sub.id), sub);
+          } catch (_) {}
+        }
+        setStorage('gt_submissions_seeded', true);
+        return localSubmissions;
+      } else if (isSeeded) {
+        localSubmissions = [];
+        setStorage('gt_submissions', localSubmissions);
+        return [];
+      }
     }
   } catch (err) {
     handleFirestoreError(err, OperationType.LIST, 'submissions');
@@ -409,6 +487,8 @@ export async function saveSubmissionToStore(
   const idx = localSubmissions.findIndex((s) => s.id === subId);
   if (idx !== -1) localSubmissions[idx] = sub;
   else localSubmissions.unshift(sub);
+  setStorage('gt_submissions', localSubmissions);
+  setStorage('gt_submissions_seeded', true);
   return sub;
 }
 
@@ -419,6 +499,8 @@ export async function deleteSubmissionFromStore(id: string): Promise<boolean> {
     handleFirestoreError(err, OperationType.DELETE, `submissions/${id}`);
   }
   localSubmissions = localSubmissions.filter((s) => s.id !== id);
+  setStorage('gt_submissions', localSubmissions);
+  setStorage('gt_submissions_seeded', true);
   return true;
 }
 
@@ -426,15 +508,31 @@ export async function deleteSubmissionFromStore(id: string): Promise<boolean> {
 export async function fetchContactsFromStore(): Promise<ContactSubmission[]> {
   try {
     const snapshot = await getDocs(collection(db, 'contacts'));
-    if (!snapshot.empty) {
-      const items: ContactSubmission[] = [];
-      snapshot.forEach((docSnap) => {
-        items.push({ id: docSnap.id, ...docSnap.data() } as ContactSubmission);
-      });
-      // Sort newest first
-      items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    const items: ContactSubmission[] = [];
+    snapshot.forEach((docSnap) => {
+      items.push({ id: docSnap.id, ...docSnap.data() } as ContactSubmission);
+    });
+    items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    if (items.length > 0) {
       localContacts = items;
+      setStorage('gt_contacts', localContacts);
+      setStorage('gt_contacts_seeded', true);
       return items;
+    } else {
+      const isSeeded = getStorage<boolean>('gt_contacts_seeded', false);
+      if (!isSeeded && localContacts.length > 0) {
+        for (const c of localContacts) {
+          try {
+            await setDoc(doc(db, 'contacts', c.id), c);
+          } catch (_) {}
+        }
+        setStorage('gt_contacts_seeded', true);
+        return localContacts;
+      } else if (isSeeded) {
+        localContacts = [];
+        setStorage('gt_contacts', localContacts);
+        return [];
+      }
     }
   } catch (err) {
     handleFirestoreError(err, OperationType.LIST, 'contacts');
@@ -460,6 +558,8 @@ export async function saveContactToStore(
   const idx = localContacts.findIndex((c) => c.id === contactId);
   if (idx !== -1) localContacts[idx] = contact;
   else localContacts.unshift(contact);
+  setStorage('gt_contacts', localContacts);
+  setStorage('gt_contacts_seeded', true);
   return contact;
 }
 
@@ -471,6 +571,7 @@ export async function deleteContactFromStore(id: string): Promise<boolean> {
   }
   localContacts = localContacts.filter((c) => c.id !== id);
   setStorage('gt_contacts', localContacts);
+  setStorage('gt_contacts_seeded', true);
   return true;
 }
 
@@ -478,14 +579,30 @@ export async function deleteContactFromStore(id: string): Promise<boolean> {
 export async function fetchUpcomingGamesFromStore(): Promise<UpcomingGame[]> {
   try {
     const snapshot = await getDocs(collection(db, 'upcomingGames'));
-    if (!snapshot.empty) {
-      const items: UpcomingGame[] = [];
-      snapshot.forEach((docSnap) => {
-        items.push({ id: docSnap.id, ...docSnap.data() } as UpcomingGame);
-      });
+    const items: UpcomingGame[] = [];
+    snapshot.forEach((docSnap) => {
+      items.push({ id: docSnap.id, ...docSnap.data() } as UpcomingGame);
+    });
+    if (items.length > 0) {
       localUpcomingGames = items;
       setStorage('gt_upcoming_games', localUpcomingGames);
+      setStorage('gt_upcoming_games_seeded', true);
       return items;
+    } else {
+      const isSeeded = getStorage<boolean>('gt_upcoming_games_seeded', false);
+      if (!isSeeded && localUpcomingGames.length > 0) {
+        for (const ug of localUpcomingGames) {
+          try {
+            await setDoc(doc(db, 'upcomingGames', ug.id), ug);
+          } catch (_) {}
+        }
+        setStorage('gt_upcoming_games_seeded', true);
+        return localUpcomingGames;
+      } else if (isSeeded) {
+        localUpcomingGames = [];
+        setStorage('gt_upcoming_games', localUpcomingGames);
+        return [];
+      }
     }
   } catch (err) {
     handleFirestoreError(err, OperationType.LIST, 'upcomingGames');
@@ -531,14 +648,30 @@ export async function fetchSponsorAdsFromStore(): Promise<SponsorAd[]> {
   const fetchTask = async () => {
     try {
       const snapshot = await getDocs(collection(db, 'sponsorAds'));
-      if (!snapshot.empty) {
-        const items: SponsorAd[] = [];
-        snapshot.forEach((docSnap) => {
-          items.push({ id: docSnap.id, ...docSnap.data() } as SponsorAd);
-        });
+      const items: SponsorAd[] = [];
+      snapshot.forEach((docSnap) => {
+        items.push({ id: docSnap.id, ...docSnap.data() } as SponsorAd);
+      });
+      if (items.length > 0) {
         localSponsorAds = items;
         setStorage('gt_sponsor_ads', localSponsorAds);
+        setStorage('gt_sponsor_ads_seeded', true);
         return items;
+      } else {
+        const isSeeded = getStorage<boolean>('gt_sponsor_ads_seeded', false);
+        if (!isSeeded && localSponsorAds.length > 0) {
+          for (const sa of localSponsorAds) {
+            try {
+              await setDoc(doc(db, 'sponsorAds', sa.id), sa);
+            } catch (_) {}
+          }
+          setStorage('gt_sponsor_ads_seeded', true);
+          return localSponsorAds;
+        } else if (isSeeded) {
+          localSponsorAds = [];
+          setStorage('gt_sponsor_ads', localSponsorAds);
+          return [];
+        }
       }
     } catch (err) {
       handleFirestoreError(err, OperationType.LIST, 'sponsorAds');
@@ -601,14 +734,30 @@ export async function fetchNetworkAdsFromStore(): Promise<NetworkAd[]> {
   const fetchTask = async () => {
     try {
       const snapshot = await getDocs(collection(db, 'networkAds'));
-      if (!snapshot.empty) {
-        const items: NetworkAd[] = [];
-        snapshot.forEach((docSnap) => {
-          items.push({ id: docSnap.id, ...docSnap.data() } as NetworkAd);
-        });
+      const items: NetworkAd[] = [];
+      snapshot.forEach((docSnap) => {
+        items.push({ id: docSnap.id, ...docSnap.data() } as NetworkAd);
+      });
+      if (items.length > 0) {
         localNetworkAds = items;
         setStorage('gt_network_ads', localNetworkAds);
+        setStorage('gt_network_ads_seeded', true);
         return items;
+      } else {
+        const isSeeded = getStorage<boolean>('gt_network_ads_seeded', false);
+        if (!isSeeded && localNetworkAds.length > 0) {
+          for (const na of localNetworkAds) {
+            try {
+              await setDoc(doc(db, 'networkAds', na.id), na);
+            } catch (_) {}
+          }
+          setStorage('gt_network_ads_seeded', true);
+          return localNetworkAds;
+        } else if (isSeeded) {
+          localNetworkAds = [];
+          setStorage('gt_network_ads', localNetworkAds);
+          return [];
+        }
       }
     } catch (err) {
       handleFirestoreError(err, OperationType.LIST, 'networkAds');
