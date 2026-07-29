@@ -30,6 +30,7 @@ import {
   HelpCircle,
   Sliders,
   Maximize2,
+  Minimize2,
   AlertTriangle,
 } from 'lucide-react';
 import { Game, NetworkAd, PageView, SiteSettings, SponsorAd } from '../../types';
@@ -77,7 +78,32 @@ export const GamePlayPage: React.FC<GamePlayPageProps> = ({
   const [loadingPercent, setLoadingPercent] = useState<number>(0);
   const [iframeKey, setIframeKey] = useState<number>(0);
   const [embedError, setEmbedError] = useState<boolean>(false);
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const playerContainerRef = React.useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const isFull = !!(
+        document.fullscreenElement ||
+        (document as any).webkitFullscreenElement ||
+        (document as any).mozFullScreenElement ||
+        (document as any).msFullscreenElement
+      );
+      setIsFullscreen(isFull);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+    document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+      document.removeEventListener('mozfullscreenchange', handleFullscreenChange);
+      document.removeEventListener('MSFullscreenChange', handleFullscreenChange);
+    };
+  }, []);
 
   useEffect(() => {
     if (game) {
@@ -91,6 +117,7 @@ export const GamePlayPage: React.FC<GamePlayPageProps> = ({
       setIsLoading(false);
       setLoadingPercent(0);
       setEmbedError(false);
+      setIsFullscreen(false);
 
       // Automatically increment views count
       incrementGameViews(game.id).then((updatedViews) => {
@@ -132,20 +159,41 @@ export const GamePlayPage: React.FC<GamePlayPageProps> = ({
     setEmbedError(false);
   };
 
-  const handleToggleFullscreen = () => {
+  const handleToggleFullscreen = async () => {
     if (!playerContainerRef.current) return;
     const elem = playerContainerRef.current as any;
-    if (document.fullscreenElement) {
+    const isFullNow = !!(
+      document.fullscreenElement ||
+      (document as any).webkitFullscreenElement ||
+      isFullscreen
+    );
+
+    if (isFullNow) {
       if (document.exitFullscreen) {
-        document.exitFullscreen();
+        await document.exitFullscreen().catch(() => {});
+      } else if ((document as any).webkitExitFullscreen) {
+        (document as any).webkitExitFullscreen();
+      } else if ((document as any).mozCancelFullScreen) {
+        (document as any).mozCancelFullScreen();
+      } else if ((document as any).msExitFullscreen) {
+        (document as any).msExitFullscreen();
       }
+      setIsFullscreen(false);
     } else {
-      if (elem.requestFullscreen) {
-        elem.requestFullscreen();
-      } else if (elem.webkitRequestFullscreen) {
-        elem.webkitRequestFullscreen();
-      } else if (elem.msRequestFullscreen) {
-        elem.msRequestFullscreen();
+      try {
+        if (elem.requestFullscreen) {
+          await elem.requestFullscreen();
+        } else if (elem.webkitRequestFullscreen) {
+          elem.webkitRequestFullscreen();
+        } else if (elem.mozRequestFullScreen) {
+          elem.mozRequestFullScreen();
+        } else if (elem.msRequestFullscreen) {
+          elem.msRequestFullscreen();
+        }
+        setIsFullscreen(true);
+      } catch (err) {
+        // Fallback to overlay fullscreen if native API fails
+        setIsFullscreen(true);
       }
     }
   };
@@ -332,8 +380,17 @@ export const GamePlayPage: React.FC<GamePlayPageProps> = ({
                 className="px-3.5 py-2 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
                 title="Toggle Fullscreen"
               >
-                <Maximize2 className="w-3.5 h-3.5 text-cyan-300" />
-                <span>Fullscreen</span>
+                {isFullscreen ? (
+                  <>
+                    <Minimize2 className="w-3.5 h-3.5 text-cyan-300" />
+                    <span>Exit Fullscreen</span>
+                  </>
+                ) : (
+                  <>
+                    <Maximize2 className="w-3.5 h-3.5 text-cyan-300" />
+                    <span>Fullscreen</span>
+                  </>
+                )}
               </button>
 
               <a
@@ -353,8 +410,35 @@ export const GamePlayPage: React.FC<GamePlayPageProps> = ({
         {/* Player Box Container */}
         <div
           ref={playerContainerRef}
-          className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden border border-white/15 bg-slate-950 shadow-[0_0_50px_rgba(6,182,212,0.25)] transition-all"
+          className={`relative w-full transition-all duration-300 ${
+            isFullscreen
+              ? 'fixed inset-0 z-[99999] w-screen h-screen bg-black rounded-none border-0 p-0 m-0 overflow-hidden flex flex-col justify-between'
+              : 'rounded-2xl sm:rounded-3xl overflow-hidden border border-white/15 bg-slate-950 shadow-[0_0_50px_rgba(6,182,212,0.25)]'
+          }`}
         >
+          {isFullscreen && (
+            <div className="absolute top-3 right-3 z-[60] flex items-center gap-2 bg-black/85 backdrop-blur-md p-1.5 px-3 rounded-2xl border border-white/20 shadow-2xl animate-fade-in">
+              <span className="text-xs font-bold text-white px-2 truncate max-w-[140px] sm:max-w-xs">
+                {game.title}
+              </span>
+              <button
+                onClick={handleRefreshGame}
+                className="p-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-cyan-300 text-xs font-bold flex items-center gap-1 transition-all cursor-pointer"
+                title="Refresh Game"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={handleToggleFullscreen}
+                className="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+                title="Exit Fullscreen"
+              >
+                <Minimize2 className="w-3.5 h-3.5" />
+                <span>Exit</span>
+              </button>
+            </div>
+          )}
+
           {!isPlaying ? (
             /* --- STATE 1: COVER THUMBNAIL WITH CENTERED PLAY BUTTON --- */
             <div className="relative w-full aspect-[16/9] min-h-[260px] sm:min-h-[440px] group flex items-center justify-center">
@@ -407,10 +491,12 @@ export const GamePlayPage: React.FC<GamePlayPageProps> = ({
           ) : (
             /* --- STATE 2: EMBEDDED IFRAME PLAYER IN-SITE --- */
             <div
-              className={`relative w-full bg-black ${
-                game.orientation === 'portrait'
-                  ? 'aspect-[3/4] max-w-md mx-auto min-h-[500px]'
-                  : 'aspect-[16/9] min-h-[350px] sm:min-h-[520px] lg:min-h-[600px]'
+              className={`relative bg-black transition-all ${
+                isFullscreen
+                  ? 'w-full h-full flex-1 aspect-auto max-w-none min-h-0'
+                  : game.orientation === 'portrait'
+                  ? 'w-full aspect-[3/4] max-w-md mx-auto min-h-[500px]'
+                  : 'w-full aspect-[16/9] min-h-[350px] sm:min-h-[520px] lg:min-h-[600px]'
               }`}
             >
               {/* Loading Overlay with progress percentage */}
