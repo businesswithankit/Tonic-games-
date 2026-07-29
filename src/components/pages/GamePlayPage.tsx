@@ -394,20 +394,13 @@ export const GamePlayPage: React.FC<GamePlayPageProps> = ({
                     Play now
                   </span>
                 </button>
-
-                <p className="mt-4 text-xs sm:text-sm font-semibold text-slate-200 drop-shadow-md bg-black/60 px-4 py-1.5 rounded-full border border-white/10 backdrop-blur-md">
-                  ⚡ Play directly in your browser • No redirects or downloads
-                </p>
               </div>
 
               {/* Bottom Cover Info */}
-              <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 right-4 sm:right-6 flex flex-wrap items-center justify-between gap-2 z-10 text-xs font-bold text-slate-300">
+              <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 right-4 sm:right-6 flex items-center justify-between gap-2 z-10 text-xs font-bold text-slate-300">
                 <span className="text-cyan-300 flex items-center gap-1">
                   <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
                   Orientation: {game.orientation || 'Landscape'}
-                </span>
-                <span className="text-purple-300 font-mono">
-                  Safe HTML5 Verified Frame
                 </span>
               </div>
             </div>
@@ -540,23 +533,6 @@ export const GamePlayPage: React.FC<GamePlayPageProps> = ({
               <span>Report</span>
             </button>
           </div>
-        </div>
-
-        {/* Fallback helper notification for frame embedding */}
-        <div className="p-3 rounded-2xl bg-white/5 border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-300">
-          <div className="flex items-center gap-2">
-            <Info className="w-4 h-4 text-cyan-400 shrink-0" />
-            <span>Facing frame display issues or blank screen? You can launch the game in a clean separate window anytime.</span>
-          </div>
-          <a
-            href={game.playUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-3 py-1.5 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 font-bold text-[11px] uppercase tracking-wider flex items-center gap-1.5 shrink-0 transition-all"
-          >
-            <span>Open in New Tab</span>
-            <ExternalLink className="w-3 h-3" />
-          </a>
         </div>
       </section>
 
