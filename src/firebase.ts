@@ -220,9 +220,21 @@ export async function deleteGameFromStore(id: string): Promise<boolean> {
   return true;
 }
 
-export async function incrementGameViews(_id: string): Promise<void> {
-  // Views system removed per user directive
-  return;
+export async function incrementGameViews(id: string): Promise<number> {
+  let newViews = 1;
+  const idx = localGames.findIndex((g) => g.id === id);
+  if (idx !== -1) {
+    localGames[idx].views = (localGames[idx].views || 0) + 1;
+    newViews = localGames[idx].views;
+    setStorage('gt_games', localGames);
+  }
+  try {
+    const ref = doc(db, 'games', id);
+    await updateDoc(ref, { views: increment(1) });
+  } catch (err) {
+    // Silent offline / permissions fallback
+  }
+  return newViews;
 }
 
 // --- CATEGORIES FIRESTORE HELPERS ---

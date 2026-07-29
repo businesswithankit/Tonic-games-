@@ -23,6 +23,11 @@ export interface Game {
   platforms?: string[];
   tags?: string[];
   developerWebsite?: string;
+  developerEmail?: string;
+  size?: string;
+  rating?: number;
+  controls?: string;
+  howToPlay?: string;
 }
 
 export interface Category {

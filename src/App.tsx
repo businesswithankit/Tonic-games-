@@ -432,6 +432,10 @@ export default function App() {
               setActiveGameToPlay(null);
             }}
             onSelectGame={(g) => handlePlayGame(g)}
+            onNavigate={(page) => {
+              setActivePage(page);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
           />
         )}
 
