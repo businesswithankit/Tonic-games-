@@ -604,21 +604,21 @@ export const SubmissionPage: React.FC<PageProps> = ({
               />
             </div>
 
-            {/* AI Prompt Used Textarea */}
+            {/* AI Prompt Used / Link Textarea */}
             <div>
               <label className="block text-xs font-bold text-slate-300 mb-2 uppercase tracking-wider flex items-center gap-1.5">
                 <Bot className="w-3.5 h-3.5 text-purple-400" />
-                <span>AI Prompt Used (Optional)</span>
+                <span>AI Prompt / Link (Optional)</span>
               </label>
               <textarea
                 rows={3}
                 value={formData.aiPromptUsed}
                 onChange={(e) => setFormData({ ...formData, aiPromptUsed: e.target.value })}
-                placeholder="Paste the AI prompt used to generate or build this game (e.g. Gemini, ChatGPT, Claude prompt)..."
+                placeholder="Paste the AI prompt or prompt link used to generate or build this game..."
                 className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white text-xs focus:outline-none focus:border-purple-400 font-mono transition-colors"
               />
               <p className="text-[11px] text-slate-500 mt-1">
-                If you created or modified this game using AI prompts, sharing them helps the community understand how the game was built!
+                You can paste the text prompt or the prompt URL used to build or generate this game.
               </p>
             </div>
 
@@ -841,13 +841,13 @@ export const SubmissionPage: React.FC<PageProps> = ({
                 )}
               </div>
 
-              {/* AI Prompt Used Box */}
+              {/* AI Prompt Used / Link Box */}
               {formData.aiPromptUsed && (
                 <div className="p-4 rounded-xl bg-purple-950/30 border border-purple-500/30 space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-purple-300 flex items-center gap-1.5">
                       <Bot className="w-4 h-4 text-purple-400" />
-                      <span>AI Prompt Used</span>
+                      <span>AI Prompt / Link</span>
                     </span>
                     <button
                       type="button"
@@ -855,11 +855,23 @@ export const SubmissionPage: React.FC<PageProps> = ({
                       className="px-2.5 py-1 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer"
                     >
                       {copiedPrompt ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                      <span>{copiedPrompt ? 'Copied' : 'Copy Prompt'}</span>
+                      <span>{copiedPrompt ? 'Copied' : 'Copy'}</span>
                     </button>
                   </div>
                   <div className="p-3 rounded-lg bg-black/60 text-slate-300 text-xs font-mono whitespace-pre-line leading-relaxed max-h-36 overflow-y-auto border border-white/5">
-                    {formData.aiPromptUsed}
+                    {formData.aiPromptUsed.trim().startsWith('http://') || formData.aiPromptUsed.trim().startsWith('https://') ? (
+                      <a
+                        href={formData.aiPromptUsed.trim()}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-cyan-400 hover:underline flex items-center gap-1.5 font-sans font-bold"
+                      >
+                        <span className="break-all">{formData.aiPromptUsed.trim()}</span>
+                        <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                      </a>
+                    ) : (
+                      formData.aiPromptUsed
+                    )}
                   </div>
                 </div>
               )}

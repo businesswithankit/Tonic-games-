@@ -1343,9 +1343,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                   {sub.aiPromptUsed && (
                     <div className="text-[11px] bg-purple-950/20 p-2.5 rounded-xl border border-purple-500/20 space-y-1">
-                      <span className="font-bold text-purple-300">AI Prompt Used:</span>
+                      <span className="font-bold text-purple-300">AI Prompt / Link:</span>
                       <p className="text-slate-300 font-mono text-[10px] whitespace-pre-line max-h-20 overflow-y-auto">
-                        {sub.aiPromptUsed}
+                        {sub.aiPromptUsed.trim().startsWith('http://') || sub.aiPromptUsed.trim().startsWith('https://') ? (
+                          <a
+                            href={sub.aiPromptUsed.trim()}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-cyan-400 hover:underline flex items-center gap-1 font-sans font-bold"
+                          >
+                            <span className="break-all">{sub.aiPromptUsed.trim()}</span>
+                            <ExternalLink className="w-3 h-3 shrink-0 inline" />
+                          </a>
+                        ) : (
+                          sub.aiPromptUsed
+                        )}
                       </p>
                     </div>
                   )}
