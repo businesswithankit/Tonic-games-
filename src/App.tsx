@@ -352,6 +352,21 @@ export default function App() {
                   </div>
                 )}
 
+                {/* Recently Added Games Section */}
+                <GameSection
+                  id="recently-added-section"
+                  title="Recently Added Games"
+                  subtitle="Fresh new HTML5 games added to the TONIC GAMES library."
+                  icon={Clock}
+                  badgeText="NEW ARRIVALS"
+                  badgeColor="purple"
+                  games={recentlyAddedGames}
+                  onPlayGame={handlePlayGame}
+                />
+
+                {/* BETWEEN RECENTLY ADDED AD SLOT */}
+                <AdSlot position="between_recently_added" sponsorAds={sponsorAds} networkAds={networkAds} />
+
                 {/* Trending Games Section */}
                 <GameSection
                   id="trending-section"
@@ -389,20 +404,6 @@ export default function App() {
                   selectedCategory={selectedCategory}
                   onSelectCategory={(slug) => setSelectedCategory(slug)}
                 />
-
-                {/* Recently Added Games Section */}
-                <GameSection
-                  title="Recently Added Games"
-                  subtitle="Fresh new HTML5 games added to the TONIC GAMES library."
-                  icon={Clock}
-                  badgeText="NEW ARRIVALS"
-                  badgeColor="purple"
-                  games={recentlyAddedGames}
-                  onPlayGame={handlePlayGame}
-                />
-
-                {/* BETWEEN RECENTLY ADDED AD SLOT */}
-                <AdSlot position="between_recently_added" sponsorAds={sponsorAds} networkAds={networkAds} />
 
                 {/* Upcoming Games Section */}
                 <UpcomingGamesSection upcomingGames={upcomingGames} />

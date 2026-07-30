@@ -297,6 +297,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         playUrl: sub.playUrl,
         status: 'active',
         aiPromptUsed: sub.aiPromptUsed,
+        developerWebsite: sub.developerWebsite || '',
+        developerEmail: sub.contactEmail || '',
         platforms: sub.platforms,
         tags: sub.tags,
         createdTime: new Date().toISOString(),
@@ -1299,10 +1301,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             <User className="w-3.5 h-3.5 text-purple-400" />
                             <span>{sub.developerName}</span>
                           </span>
-                          <span className="flex items-center gap-1">
-                            <Mail className="w-3.5 h-3.5 text-cyan-400" />
-                            <span>{sub.contactEmail}</span>
-                          </span>
+                          {sub.contactEmail && (
+                            <span className="flex items-center gap-1">
+                              <Mail className="w-3.5 h-3.5 text-cyan-400" />
+                              <span>{sub.contactEmail}</span>
+                            </span>
+                          )}
+                          {sub.developerWebsite && (
+                            <span className="flex items-center gap-1">
+                              <Globe className="w-3.5 h-3.5 text-fuchsia-400" />
+                              <a
+                                href={sub.developerWebsite}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-fuchsia-300 hover:underline"
+                              >
+                                {sub.developerWebsite}
+                              </a>
+                            </span>
+                          )}
                           <span className="text-[11px] text-slate-500">
                             Submitted: {new Date(sub.createdAt).toLocaleDateString()}
                           </span>
@@ -1510,54 +1527,117 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       {/* TAB 5: CATEGORIES CRUD */}
       {activeTab === 'categories' && (
         <div className="space-y-6 animate-fade-in">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-white">Categories Management</h2>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
+            <div>
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <FolderTree className="w-5 h-5 text-purple-400" />
+                <span>Categories Management (Firestore Collection)</span>
+              </h2>
+              <p className="text-xs text-slate-400 mt-1">
+                Manage game category definitions, URLs, banner images, display order, icons, and visibility status.
+              </p>
+            </div>
+
             <button
               onClick={() => {
                 setEditingCat({
                   name: '',
                   slug: '',
                   icon: 'Gamepad2',
-                  image: '',
+                  image: 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?auto=format&fit=crop&w=800&q=80',
                   description: '',
                   order: categories.length + 1,
                   hidden: false,
                 });
                 setIsCatModalOpen(true);
               }}
-              className="px-4 py-2 rounded-xl bg-purple-600 text-white font-bold text-xs uppercase flex items-center gap-2"
+              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:opacity-90 text-white font-bold text-xs uppercase flex items-center gap-2 shadow-lg shadow-purple-500/20 cursor-pointer transition-all"
             >
               <Plus className="w-4 h-4" />
-              <span>New Category</span>
+              <span>Create New Category</span>
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {categories.map((cat) => (
-              <div key={cat.id} className="glass-card p-5 rounded-2xl space-y-3 relative">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-mono text-cyan-400">slug: {cat.slug}</span>
-                  <div className="flex items-center gap-1">
+              <div
+                key={cat.id}
+                className="glass-card rounded-2xl border border-white/10 hover:border-purple-500/40 transition-all overflow-hidden flex flex-col justify-between group bg-[#0e101a]/90"
+              >
+                {/* Banner Image Header */}
+                <div className="relative h-28 w-full bg-slate-900 overflow-hidden">
+                  {cat.image ? (
+                    <img
+                      src={cat.image}
+                      alt={cat.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-r from-purple-900/50 to-slate-900 flex items-center justify-center">
+                      <FolderTree className="w-10 h-10 text-white/20" />
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0e101a] via-black/40 to-transparent" />
+
+                  {/* Order badge & Hidden badge */}
+                  <div className="absolute top-2.5 left-2.5 flex items-center gap-2">
+                    <span className="px-2 py-0.5 rounded-md bg-purple-950/80 border border-purple-500/40 text-purple-300 text-[10px] font-black font-mono shadow">
+                      #{cat.order || 1}
+                    </span>
+                    {cat.hidden ? (
+                      <span className="px-2 py-0.5 rounded-md bg-amber-500/80 text-black text-[10px] font-bold uppercase shadow">
+                        Hidden
+                      </span>
+                    ) : (
+                      <span className="px-2 py-0.5 rounded-md bg-emerald-500/80 text-black text-[10px] font-bold uppercase shadow">
+                        Active
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Quick Edit/Delete */}
+                  <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5 bg-black/60 backdrop-blur-sm p-1 rounded-xl border border-white/10">
                     <button
                       onClick={() => {
                         setEditingCat({ ...cat });
                         setIsCatModalOpen(true);
                       }}
-                      className="p-1.5 rounded-lg bg-white/5 hover:bg-purple-500/20 text-slate-300 hover:text-purple-300"
+                      className="p-1.5 rounded-lg bg-white/10 hover:bg-purple-500/40 text-white transition-all cursor-pointer"
+                      title="Edit Category"
                     >
                       <Edit2 className="w-3.5 h-3.5" />
                     </button>
                     <button
                       onClick={() => handleDeleteCategory(cat.id)}
-                      className="p-1.5 rounded-lg bg-white/5 hover:bg-red-500/20 text-slate-300 hover:text-red-400"
+                      className="p-1.5 rounded-lg bg-white/10 hover:bg-red-500/40 text-red-300 transition-all cursor-pointer"
+                      title="Delete Category"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>
 
-                <h3 className="text-lg font-bold text-white">{cat.name}</h3>
-                <p className="text-xs text-slate-400">{cat.description}</p>
+                {/* Content body */}
+                <div className="p-4 space-y-2.5 flex-1 flex flex-col justify-between">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 rounded-lg bg-purple-500/20 text-purple-300 border border-purple-500/30 font-bold text-xs">
+                        {cat.icon || 'Gamepad2'}
+                      </div>
+                      <h3 className="text-base font-bold text-white truncate">{cat.name}</h3>
+                    </div>
+
+                    <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed">
+                      {cat.description || 'No description provided.'}
+                    </p>
+                  </div>
+
+                  {/* Footer details */}
+                  <div className="pt-2 border-t border-white/5 flex flex-wrap items-center justify-between text-[11px] font-mono text-slate-400 gap-1">
+                    <span>slug: <strong className="text-cyan-400 font-normal">{cat.slug}</strong></span>
+                    <span className="text-[10px] text-slate-500 truncate max-w-[120px]">id: {cat.id}</span>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
@@ -1928,6 +2008,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           onChange={(e) => handleUpdateSocialLink(idx, 'platform', e.target.value)}
                           className="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-white/15 text-xs text-white font-bold"
                         >
+                          <option value="website">Official Website</option>
+                          <option value="suggestion">Suggestions & Feedback</option>
+                          <option value="review">Reviews & Ratings</option>
                           <option value="youtube">YouTube</option>
                           <option value="twitter">X / Twitter</option>
                           <option value="discord">Discord</option>
@@ -1939,7 +2022,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           <option value="steam">Steam</option>
                           <option value="reddit">Reddit</option>
                           <option value="github">GitHub</option>
-                          <option value="website">Website / General</option>
                         </select>
                       </div>
                     </div>
@@ -2494,53 +2576,273 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
       {/* EDIT CATEGORY MODAL */}
       {isCatModalOpen && editingCat && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="w-full max-w-md bg-[#0e101a] border border-white/15 rounded-3xl p-6 space-y-4">
-            <div className="flex items-center justify-between border-b border-white/10 pb-3">
-              <h3 className="text-lg font-bold text-white">
-                {editingCat.id ? 'Edit Category' : 'Create Category'}
-              </h3>
-              <button
-                onClick={() => setIsCatModalOpen(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-white"
-              >
-                <X className="w-5 h-5" />
-              </button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in">
+          <div className="w-full max-w-2xl bg-[#0e101a] border border-purple-500/30 rounded-3xl p-6 sm:p-8 space-y-6 max-h-[90vh] overflow-y-auto shadow-[0_0_50px_rgba(168,85,247,0.15)] relative">
+            <button
+              type="button"
+              onClick={() => setIsCatModalOpen(false)}
+              className="absolute top-6 right-6 p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-3 border-b border-white/10 pb-4">
+              <div className="p-3 rounded-2xl bg-purple-500/20 border border-purple-500/40 text-purple-300">
+                <FolderTree className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-white">
+                  {editingCat.id ? 'Edit Firestore Category' : 'Create New Category'}
+                </h3>
+                <p className="text-xs font-mono text-slate-400">
+                  {editingCat.id ? `Document ID: ${editingCat.id}` : 'New collection document record'}
+                </p>
+              </div>
             </div>
 
-            <form onSubmit={handleSaveCategory} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1 uppercase">
-                  Name *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={editingCat.name || ''}
-                  onChange={(e) => setEditingCat({ ...editingCat, name: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-xs text-white"
-                />
+            <form onSubmit={handleSaveCategory} className="space-y-6">
+              {/* SECTION 1: CORE METADATA */}
+              <div className="p-5 rounded-2xl bg-black/40 border border-white/10 space-y-4">
+                <h4 className="text-xs font-bold text-purple-400 uppercase tracking-wider flex items-center gap-2 border-b border-white/5 pb-2">
+                  <Sparkles className="w-4 h-4 text-purple-400" />
+                  <span>1. Category Name, Slug & Sorting Order</span>
+                </h4>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="sm:col-span-2">
+                    <label className="block text-[11px] font-bold text-slate-300 mb-1 uppercase">
+                      Category Name <span className="text-pink-400">*</span>
+                      <span className="text-[10px] text-slate-500 font-mono lowercase ml-1">(string)</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Action"
+                      value={editingCat.name || ''}
+                      onChange={(e) => {
+                        const newName = e.target.value;
+                        const autoSlug = newName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+                        setEditingCat({
+                          ...editingCat,
+                          name: newName,
+                          slug: editingCat.slug ? editingCat.slug : autoSlug,
+                        });
+                      }}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-white/15 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-purple-400"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-300 mb-1 uppercase">
+                      Display Order
+                      <span className="text-[10px] text-slate-500 font-mono lowercase ml-1">(int64)</span>
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      min={1}
+                      value={editingCat.order || 1}
+                      onChange={(e) =>
+                        setEditingCat({ ...editingCat, order: parseInt(e.target.value) || 1 })
+                      }
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-white/15 text-xs text-purple-300 font-mono font-bold focus:outline-none focus:border-purple-400"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-300 mb-1 uppercase">
+                    URL Slug <span className="text-pink-400">*</span>
+                    <span className="text-[10px] text-slate-500 font-mono lowercase ml-1">(string)</span>
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. action"
+                      value={editingCat.slug || ''}
+                      onChange={(e) => setEditingCat({ ...editingCat, slug: e.target.value.toLowerCase().trim() })}
+                      className="flex-1 px-4 py-2.5 rounded-xl bg-slate-900 border border-white/15 text-xs text-cyan-300 font-mono focus:outline-none focus:border-purple-400"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (editingCat.name) {
+                          const generated = editingCat.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+                          setEditingCat({ ...editingCat, slug: generated });
+                        }
+                      }}
+                      className="px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] text-slate-300 font-bold uppercase transition-all cursor-pointer"
+                    >
+                      Auto-Slug
+                    </button>
+                  </div>
+                </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1 uppercase">
-                  Slug *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={editingCat.slug || ''}
-                  onChange={(e) => setEditingCat({ ...editingCat, slug: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-xs text-white"
-                />
+              {/* SECTION 2: ICON & BANNER IMAGE */}
+              <div className="p-5 rounded-2xl bg-black/40 border border-white/10 space-y-4">
+                <h4 className="text-xs font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-2 border-b border-white/5 pb-2">
+                  <Gamepad2 className="w-4 h-4 text-cyan-400" />
+                  <span>2. Visual Icon & Banner Cover Image</span>
+                </h4>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-300 mb-1 uppercase">
+                    Lucide Icon Name
+                    <span className="text-[10px] text-slate-500 font-mono lowercase ml-1">(string)</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Gamepad2"
+                    value={editingCat.icon || 'Gamepad2'}
+                    onChange={(e) => setEditingCat({ ...editingCat, icon: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-white/15 text-xs text-white font-mono focus:outline-none focus:border-cyan-400 mb-2"
+                  />
+
+                  {/* Preset Icon Chips */}
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <span className="text-[10px] text-slate-400 font-bold uppercase mr-1">Quick Select:</span>
+                    {[
+                      'Gamepad2',
+                      'Zap',
+                      'Flame',
+                      'Trophy',
+                      'Swords',
+                      'Crosshair',
+                      'Car',
+                      'Ghost',
+                      'Users',
+                      'Sparkles',
+                      'Puzzle',
+                      'Rocket',
+                      'Compass',
+                      'Target',
+                    ].map((iconName) => (
+                      <button
+                        key={iconName}
+                        type="button"
+                        onClick={() => setEditingCat({ ...editingCat, icon: iconName })}
+                        className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer border ${
+                          editingCat.icon === iconName
+                            ? 'bg-cyan-500/20 border-cyan-400 text-cyan-300'
+                            : 'bg-white/5 border-white/10 text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        {iconName}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-300 mb-1 uppercase">
+                    Banner Cover Image URL
+                    <span className="text-[10px] text-slate-500 font-mono lowercase ml-1">(string)</span>
+                  </label>
+                  <input
+                    type="url"
+                    placeholder="https://images.unsplash.com/..."
+                    value={editingCat.image || ''}
+                    onChange={(e) => setEditingCat({ ...editingCat, image: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-white/15 text-xs text-white focus:outline-none focus:border-cyan-400"
+                  />
+
+                  {/* Image Preview */}
+                  {editingCat.image && (
+                    <div className="mt-3 relative h-28 w-full rounded-xl overflow-hidden border border-white/15 bg-slate-950">
+                      <img
+                        src={editingCat.image}
+                        alt="Category Preview"
+                        className="w-full h-full object-cover"
+                        onError={(e) => (e.currentTarget.style.display = 'none')}
+                      />
+                      <div className="absolute bottom-2 left-2 px-2.5 py-1 rounded-md bg-black/70 backdrop-blur-sm border border-white/10 text-[10px] text-slate-300 font-bold flex items-center gap-1.5">
+                        <Eye className="w-3 h-3 text-cyan-400" />
+                        <span>Category Banner Preview</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
 
-              <button
-                type="submit"
-                className="w-full py-3 rounded-xl bg-purple-600 text-white font-bold text-xs uppercase"
-              >
-                Save Category
-              </button>
+              {/* SECTION 3: DESCRIPTION & VISIBILITY */}
+              <div className="p-5 rounded-2xl bg-black/40 border border-white/10 space-y-4">
+                <h4 className="text-xs font-bold text-fuchsia-400 uppercase tracking-wider flex items-center gap-2 border-b border-white/5 pb-2">
+                  <FileText className="w-4 h-4 text-fuchsia-400" />
+                  <span>3. Category Description & Visibility Settings</span>
+                </h4>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-300 mb-1 uppercase">
+                    Category Description
+                    <span className="text-[10px] text-slate-500 font-mono lowercase ml-1">(string)</span>
+                  </label>
+                  <textarea
+                    rows={3}
+                    placeholder="Describe this game category for visitors..."
+                    value={editingCat.description || ''}
+                    onChange={(e) => setEditingCat({ ...editingCat, description: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-white/15 text-xs text-white focus:outline-none focus:border-fuchsia-400"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-900/80 border border-white/10">
+                  <div>
+                    <span className="block text-xs font-bold text-slate-200">
+                      Hide Category from Main Portal Navigation
+                    </span>
+                    <span className="text-[11px] text-slate-400 font-mono">
+                      hidden: {editingCat.hidden ? 'true (boolean)' : 'false (boolean)'}
+                    </span>
+                  </div>
+
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={!!editingCat.hidden}
+                      onChange={(e) => setEditingCat({ ...editingCat, hidden: e.target.checked })}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+                  </label>
+                </div>
+              </div>
+
+              {/* FIRESTORE DOCUMENT SCHEMA FOOTER */}
+              <div className="p-3.5 rounded-xl bg-purple-950/30 border border-purple-500/20 text-[11px] font-mono text-slate-400 space-y-1">
+                <span className="font-bold text-purple-300 uppercase block">Firestore Document Fields:</span>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 text-[10px]">
+                  <span>description: <strong className="text-slate-200">string</strong></span>
+                  <span>hidden: <strong className="text-amber-300">boolean</strong></span>
+                  <span>icon: <strong className="text-slate-200">string</strong></span>
+                  <span>id: <strong className="text-cyan-300">string</strong></span>
+                  <span>image: <strong className="text-slate-200">string</strong></span>
+                  <span>name: <strong className="text-slate-200">string</strong></span>
+                  <span>order: <strong className="text-purple-300">int64</strong></span>
+                  <span>slug: <strong className="text-cyan-300">string</strong></span>
+                </div>
+              </div>
+
+              {/* ACTION BUTTONS */}
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsCatModalOpen(false)}
+                  className="px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-bold text-xs uppercase transition-all cursor-pointer"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-purple-600 via-fuchsia-600 to-cyan-500 hover:from-purple-500 hover:to-cyan-400 text-slate-950 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(168,85,247,0.4)] transition-all cursor-pointer"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>Save Category Record</span>
+                </button>
+              </div>
             </form>
           </div>
         </div>

@@ -12,7 +12,7 @@ import {
   Layers,
 } from 'lucide-react';
 import { PageView, SiteSettings } from '../types';
-import { SocialMediaList } from './SocialIcons';
+import { SocialMediaList, OfficialWebsiteIcon, SuggestionsIcon, ReviewsIcon } from './SocialIcons';
 
 interface FooterProps {
   settings: SiteSettings;
@@ -175,7 +175,7 @@ export const Footer: React.FC<FooterProps> = ({ settings, activePage, setActiveP
                   rel="noopener noreferrer"
                   className="hover:text-white transition-colors flex items-center gap-2 cursor-pointer group text-left w-full p-2.5 rounded-xl bg-white/5 border border-white/5 hover:border-cyan-500/30 hover:bg-white/10"
                 >
-                  <Globe className="w-4 h-4 text-cyan-400 shrink-0 group-hover:scale-110 transition-transform" />
+                  <OfficialWebsiteIcon className="w-4 h-4 text-cyan-400 shrink-0 group-hover:scale-110 transition-transform" />
                   <span className="font-semibold text-slate-200 group-hover:text-white">Official Website</span>
                   <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-cyan-400 transition-colors ml-auto shrink-0" />
                 </a>
@@ -187,9 +187,21 @@ export const Footer: React.FC<FooterProps> = ({ settings, activePage, setActiveP
                   rel="noopener noreferrer"
                   className="hover:text-white transition-colors flex items-center gap-2 cursor-pointer group text-left w-full p-2.5 rounded-xl bg-white/5 border border-white/5 hover:border-fuchsia-500/30 hover:bg-white/10"
                 >
-                  <MessageSquare className="w-4 h-4 text-fuchsia-400 shrink-0 group-hover:scale-110 transition-transform" />
+                  <SuggestionsIcon className="w-4 h-4 text-fuchsia-400 shrink-0 group-hover:scale-110 transition-transform" />
                   <span className="font-semibold text-slate-200 group-hover:text-white">Suggestion & Feedback</span>
                   <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-fuchsia-400 transition-colors ml-auto shrink-0" />
+                </a>
+              </li>
+              <li>
+                <a
+                  href={settings.rateButtonLink || 'https://games-tonic.ai.studio/reviews'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-white transition-colors flex items-center gap-2 cursor-pointer group text-left w-full p-2.5 rounded-xl bg-white/5 border border-white/5 hover:border-amber-500/30 hover:bg-white/10"
+                >
+                  <ReviewsIcon className="w-4 h-4 text-amber-400 shrink-0 group-hover:scale-110 transition-transform" />
+                  <span className="font-semibold text-slate-200 group-hover:text-white">Reviews & Ratings</span>
+                  <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-amber-400 transition-colors ml-auto shrink-0" />
                 </a>
               </li>
             </ul>

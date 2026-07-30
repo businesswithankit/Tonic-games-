@@ -23,6 +23,7 @@ import {
   Globe,
   Mail,
   ShieldCheck,
+  Bot,
   FileText,
   Lock,
   Scale,
@@ -1025,28 +1026,55 @@ export const GamePlayPage: React.FC<GamePlayPageProps> = ({
             </div>
           </div>
 
-          {/* Optional Developer Website - AUTO HIDE IF EMPTY */}
-          {game.developerWebsite && (
-            <div className="pt-2 border-t border-white/10 flex items-center gap-2 text-xs text-cyan-300">
-              <Globe className="w-4 h-4 text-cyan-400 shrink-0" />
+          {/* Contact Email - AUTO HIDE IF EMPTY */}
+          {(game.developerEmail || (game as any).contactEmail) && (
+            <div className="pt-2 border-t border-white/10 flex items-center gap-2 text-xs text-slate-300">
+              <Mail className="w-4 h-4 text-pink-400 shrink-0" />
+              <span className="text-slate-400 font-medium">Contact Email:</span>
               <a
-                href={game.developerWebsite}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:underline truncate"
+                href={`mailto:${game.developerEmail || (game as any).contactEmail}`}
+                className="hover:underline truncate text-pink-300 font-semibold"
               >
-                {game.developerWebsite}
+                {game.developerEmail || (game as any).contactEmail}
               </a>
             </div>
           )}
 
-          {/* Optional Developer Email - AUTO HIDE IF EMPTY */}
-          {game.developerEmail && (
-            <div className="pt-2 border-t border-white/10 flex items-center gap-2 text-xs text-slate-300">
-              <Mail className="w-4 h-4 text-pink-400 shrink-0" />
-              <a href={`mailto:${game.developerEmail}`} className="hover:underline truncate">
-                {game.developerEmail}
+          {/* Optional Developer Website - AUTO HIDE IF EMPTY */}
+          {game.developerWebsite && (
+            <div className="pt-2 border-t border-white/10 flex items-center gap-2 text-xs text-cyan-300">
+              <Globe className="w-4 h-4 text-cyan-400 shrink-0" />
+              <span className="text-slate-400 font-medium">Developer Website:</span>
+              <a
+                href={game.developerWebsite}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:underline truncate font-semibold text-cyan-300 flex items-center gap-1"
+              >
+                <span>{game.developerWebsite}</span>
+                <ExternalLink className="w-3 h-3 shrink-0" />
               </a>
+            </div>
+          )}
+
+          {/* AI Project / Prompt Link - AUTO HIDE IF EMPTY */}
+          {game.aiPromptUsed && (
+            <div className="pt-2 border-t border-white/10 flex items-center gap-2 text-xs text-purple-300">
+              <Bot className="w-4 h-4 text-purple-400 shrink-0" />
+              <span className="text-slate-400 font-medium">AI Project / Prompt Link:</span>
+              {game.aiPromptUsed.startsWith('http://') || game.aiPromptUsed.startsWith('https://') ? (
+                <a
+                  href={game.aiPromptUsed}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:underline truncate font-semibold text-purple-300 flex items-center gap-1"
+                >
+                  <span className="break-all">{game.aiPromptUsed}</span>
+                  <ExternalLink className="w-3 h-3 shrink-0" />
+                </a>
+              ) : (
+                <span className="font-mono text-slate-300 break-all">{game.aiPromptUsed}</span>
+              )}
             </div>
           )}
         </div>

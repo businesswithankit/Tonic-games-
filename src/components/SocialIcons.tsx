@@ -1,6 +1,67 @@
 import React from 'react';
-import { Globe, Share2 } from 'lucide-react';
+import { Share2 } from 'lucide-react';
 import { SocialLink } from '../types';
+
+export const OfficialWebsiteIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path
+      d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M3.6 9H20.4M3.6 15H20.4"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M11.5 3A17 17 0 0 0 8 12A17 17 0 0 0 11.5 21M12.5 3A17 17 0 0 1 16 12A17 17 0 0 1 12.5 21"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const SuggestionsIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path
+      d="M9 21h6m-3 0v-2m-3-3a6 6 0 116 0c0 1.5-.8 2.5-1.5 3.3A2.5 2.5 0 0112 18h0a2.5 2.5 0 01-1.5-1.3C9.8 15.5 9 14.5 9 13z"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M12 2v2M4.93 4.93l1.41 1.41M19.07 4.93l-1.41 1.41M2 12h2M20 12h2"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const ReviewsIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path
+      d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"
+      fill="currentColor"
+    />
+    <path
+      d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h4"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
 
 interface SocialIconProps {
   platform: string;
@@ -9,6 +70,18 @@ interface SocialIconProps {
 
 export const SocialIcon: React.FC<SocialIconProps> = ({ platform, className = 'w-4 h-4' }) => {
   const p = platform.toLowerCase().trim();
+
+  if (p === 'website' || p === 'official-website' || p === 'official_website' || p === 'site') {
+    return <OfficialWebsiteIcon className={className} />;
+  }
+
+  if (p === 'suggestion' || p === 'suggestions' || p === 'feedback') {
+    return <SuggestionsIcon className={className} />;
+  }
+
+  if (p === 'review' || p === 'reviews' || p === 'rating' || p === 'ratings' || p === 'rate') {
+    return <ReviewsIcon className={className} />;
+  }
 
   if (p === 'youtube') {
     return (
@@ -98,7 +171,7 @@ export const SocialIcon: React.FC<SocialIconProps> = ({ platform, className = 'w
     );
   }
 
-  return <Globe className={className} />;
+  return <OfficialWebsiteIcon className={className} />;
 };
 
 interface RenderSocialListProps {
@@ -118,7 +191,6 @@ export const SocialMediaList: React.FC<RenderSocialListProps> = ({
   telegram,
   className = 'flex items-center gap-2 flex-wrap',
 }) => {
-  // Combine custom socialLinks + fallback default fields if socialLinks is empty
   let linksToRender: { id: string; platform: string; title: string; url: string }[] = [];
 
   if (socialLinks && socialLinks.length > 0) {
@@ -149,3 +221,4 @@ export const SocialMediaList: React.FC<RenderSocialListProps> = ({
     </div>
   );
 };
+
