@@ -32,6 +32,7 @@ import {
 } from './firebase';
 import { getRecentlyPlayed } from './utils/localStorage';
 import { Navbar } from './components/Navbar';
+import { LoadingScreen } from './components/LoadingScreen';
 import { HeroBanner } from './components/HeroBanner';
 import { GameSection } from './components/GameSection';
 import { CategoryGrid } from './components/CategoryGrid';
@@ -109,39 +110,77 @@ export default function App() {
   // Admin Auth State
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState<boolean>(false);
 
-  // Initial Load Data
-  const loadAllData = async () => {
-    const [
-      fetchedGames,
-      fetchedUpcoming,
-      fetchedSponsorAds,
-      fetchedNetworkAds,
-      fetchedCats,
-      fetchedSponsors,
-      fetchedSettings,
-      fetchedSubs,
-      fetchedContacts,
-    ] = await Promise.all([
-      fetchGamesFromStore(),
-      fetchUpcomingGamesFromStore(),
-      fetchSponsorAdsFromStore(),
-      fetchNetworkAdsFromStore(),
-      fetchCategoriesFromStore(),
-      fetchSponsorsFromStore(),
-      fetchSettingsFromStore(),
-      fetchSubmissionsFromStore(),
-      fetchContactsFromStore(),
-    ]);
+  // Smart Dynamic Loading Screen State
+  const [showLoadingScreen, setShowLoadingScreen] = useState<boolean>(true);
+  const [isDataReady, setIsDataReady] = useState<boolean>(false);
+  const [loadingProgress, setLoadingProgress] = useState<number>(5);
 
-    setGames(fetchedGames);
-    setUpcomingGames(fetchedUpcoming);
-    setSponsorAds(fetchedSponsorAds);
-    setNetworkAds(fetchedNetworkAds);
-    setCategories(fetchedCats);
-    setSponsors(fetchedSponsors);
-    setSettings(fetchedSettings);
-    setSubmissions(fetchedSubs);
-    setContacts(fetchedContacts);
+  // Initial Load Data with Smart Dynamic Loading Progress
+  const loadAllData = async () => {
+    let currentProgress = 5;
+    const updateProgress = (amount: number) => {
+      currentProgress = Math.min(currentProgress + amount, 98);
+      setLoadingProgress(currentProgress);
+    };
+
+    try {
+      // Step 1: Website settings
+      const fetchedSettings = await fetchSettingsFromStore();
+      setSettings(fetchedSettings);
+      updateProgress(18);
+
+      // Step 2: Categories
+      const fetchedCats = await fetchCategoriesFromStore();
+      setCategories(fetchedCats);
+      updateProgress(15);
+
+      // Step 3: Games (includes Trending & Featured games)
+      const fetchedGames = await fetchGamesFromStore();
+      setGames(fetchedGames);
+      updateProgress(25);
+
+      // Step 4: Sponsor banners and Network ads
+      const [fetchedSponsorAds, fetchedNetworkAds, fetchedSponsors] = await Promise.all([
+        fetchSponsorAdsFromStore(),
+        fetchNetworkAdsFromStore(),
+        fetchSponsorsFromStore(),
+      ]);
+      setSponsorAds(fetchedSponsorAds);
+      setNetworkAds(fetchedNetworkAds);
+      setSponsors(fetchedSponsors);
+      updateProgress(18);
+
+      // Step 5: Upcoming games & portal submissions
+      const [fetchedUpcoming, fetchedSubs, fetchedContacts] = await Promise.all([
+        fetchUpcomingGamesFromStore(),
+        fetchSubmissionsFromStore(),
+        fetchContactsFromStore(),
+      ]);
+      setUpcomingGames(fetchedUpcoming);
+      setSubmissions(fetchedSubs);
+      setContacts(fetchedContacts);
+      updateProgress(12);
+
+      // Step 6: Preload hero banner image so essential homepage components are ready
+      if (fetchedSettings.heroBgImage) {
+        await new Promise<void>((resolve) => {
+          const img = new Image();
+          img.onload = () => resolve();
+          img.onerror = () => resolve();
+          img.src = fetchedSettings.heroBgImage;
+          setTimeout(() => resolve(), 1500); // 1.5s max fallback for CDN images
+        });
+      }
+
+      // All website settings, games, categories, trending, featured, sponsor banners, and hero banner ready
+      setLoadingProgress(100);
+      setIsDataReady(true);
+    } catch (err) {
+      console.error('Error loading gaming portal data:', err);
+      // Ensure user is never left on a blank screen if there is a transient network error
+      setLoadingProgress(100);
+      setIsDataReady(true);
+    }
   };
 
   useEffect(() => {
@@ -214,6 +253,17 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#050505] text-slate-100 flex flex-col selection:bg-cyan-400 selection:text-slate-950 font-sans relative overflow-x-hidden">
+      {/* Smart Dynamic Loading Screen */}
+      {showLoadingScreen && (
+        <LoadingScreen
+          progress={loadingProgress}
+          isReady={isDataReady}
+          onFadeOutComplete={() => setShowLoadingScreen(false)}
+          logoUrl={settings.logoUrl}
+          websiteName={settings.websiteName}
+        />
+      )}
+
       {/* Background Atmospheric Glows */}
       <div className="fixed top-[-10%] left-[-10%] w-[50%] h-[50%] bg-cyan-900/20 rounded-full blur-[120px] pointer-events-none z-0" />
       <div className="fixed bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-fuchsia-900/20 rounded-full blur-[120px] pointer-events-none z-0" />
