@@ -267,7 +267,28 @@ export default function App() {
     };
   }, []);
 
+  // Support deep-linking for game sharing via query parameter or hash on initial load
+  useEffect(() => {
+    if (!isDataReady || games.length === 0) return;
 
+    const params = new URLSearchParams(window.location.search);
+    const gameParam = params.get('game');
+    
+    const hash = window.location.hash;
+    const hashGame = hash.startsWith('#game=') 
+      ? hash.substring(6) 
+      : (hash.startsWith('#') && hash.substring(1).length > 2 ? hash.substring(1) : null);
+    
+    const targetSlug = gameParam || hashGame;
+
+    if (targetSlug) {
+      const found = findGameBySlug(targetSlug, games);
+      if (found) {
+        setActivePage('game');
+        setActiveGameToPlay(found);
+      }
+    }
+  }, [isDataReady, games]);
 
   // Update favicon if set in settings
   useEffect(() => {

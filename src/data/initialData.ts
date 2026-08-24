@@ -330,17 +330,5 @@ export const INITIAL_SPONSOR_ADS: SponsorAd[] = [
   },
 ];
 
-export const INITIAL_NETWORK_ADS: NetworkAd[] = [
-  {
-    id: 'net-1',
-    adName: 'AdSense Responsive Leaderboard',
-    position: 'below_hero',
-    adCode: `<div style="background: linear-gradient(135deg, rgba(6,182,212,0.1), rgba(168,85,247,0.1)); border: 1px dashed rgba(255,255,255,0.2); padding: 12px; border-radius: 12px; text-align: center; font-family: sans-serif; color: #a5f3fc;">
-  <span style="font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #64748b; font-weight: bold; display: block; margin-bottom: 4px;">Google AdSense Banner (Auto Responsive)</span>
-  <p style="margin:0; font-size: 12px; font-weight: 600;">⚡ Ultra Fast Web Gaming Sponsored Ad Slot</p>
-</div>`,
-    status: 'active',
-    createdAt: '2026-07-25T13:00:00Z',
-  },
-];
+export const INITIAL_NETWORK_ADS: NetworkAd[] = [];
 

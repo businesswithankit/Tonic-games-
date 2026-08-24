@@ -42,6 +42,7 @@ import {
   toggleFavoriteGame,
 } from '../../utils/localStorage';
 import { incrementGameViews } from '../../firebase';
+import { getGameSlug } from '../../utils/slug';
 import { AdSlot } from '../AdSlot';
 import { GameCard } from '../GameCard';
 import { ReportModal } from '../ReportModal';
@@ -271,21 +272,29 @@ export const GamePlayPage: React.FC<GamePlayPageProps> = ({
   };
 
   const handleShare = async () => {
+    const gameSlug = getGameSlug(game, allGames);
+    const shareUrl = `${window.location.origin}?game=${gameSlug}`;
+
     if (navigator.share) {
       try {
         await navigator.share({
           title: `${game.title} - ${settings.websiteName || 'TONIC GAMES'}`,
-          text: `Play ${game.title} online for free!`,
-          url: window.location.href,
+          text: `Play ${game.title} online for free! Zero downloads, instant play.`,
+          url: shareUrl,
         });
         return;
       } catch (err) {
         // Fallback to clipboard
       }
     }
-    navigator.clipboard.writeText(window.location.href);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
   };
 
   return (
