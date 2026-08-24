@@ -55,7 +55,7 @@ import { NotFoundPage } from './components/pages/NotFoundPage';
 import { AdminLogin } from './components/admin/AdminLogin';
 import { AdminDashboard } from './components/admin/AdminDashboard';
 import { getGameSlug, findGameBySlug } from './utils/slug';
-import { getPageUrl, updatePageMeta } from './utils/seo';
+import { updatePageMeta } from './utils/seo';
 import {
   Flame,
   Sparkles,
@@ -186,92 +186,50 @@ export default function App() {
     }
   };
 
-  const parsePathname = (pathname: string, allGames: Game[]) => {
-    const path = pathname.toLowerCase().replace(/\/+$/, '') || '/';
-    
-    if (path === '' || path === '/') {
-      return { page: 'home' as PageView, category: null, game: null };
-    }
-    if (path === '/games') {
-      return { page: 'home' as PageView, category: null, game: null };
-    }
-    if (path === '/categories') {
-      return { page: 'home' as PageView, category: null, game: null, scrollTo: 'categories-grid' };
-    }
-    if (path === '/trending') {
-      return { page: 'home' as PageView, category: null, game: null, scrollTo: 'trending-section' };
-    }
-    if (path === '/featured') {
-      return { page: 'home' as PageView, category: null, game: null, scrollTo: 'featured-section' };
-    }
-    if (path === '/upcoming') {
-      return { page: 'home' as PageView, category: null, game: null, scrollTo: 'upcoming-section' };
-    }
-    if (path === '/search') {
-      return { page: 'home' as PageView, category: null, game: null, openSearch: true };
-    }
-    if (path === '/about') {
-      return { page: 'about' as PageView, category: null, game: null };
-    }
-    if (path === '/contact') {
-      return { page: 'contact' as PageView, category: null, game: null };
-    }
-    if (path === '/privacy-policy') {
-      return { page: 'privacy' as PageView, category: null, game: null };
-    }
-    if (path === '/terms-and-conditions') {
-      return { page: 'terms' as PageView, category: null, game: null };
-    }
-    if (path === '/community-guidelines') {
-      return { page: 'community-guidelines' as PageView, category: null, game: null };
-    }
-    if (path === '/submission-policy') {
-      return { page: 'submission-policy' as PageView, category: null, game: null };
-    }
-    if (path === '/dmca') {
-      return { page: 'dmca' as PageView, category: null, game: null };
-    }
-    if (path === '/copyright-removal') {
-      return { page: 'copyright-removal' as PageView, category: null, game: null };
-    }
-    if (path === '/developer-submission') {
-      return { page: 'submission' as PageView, category: null, game: null };
-    }
-    if (path === '/admin') {
-      return { page: 'admin' as PageView, category: null, game: null };
-    }
-
-    // Check category
-    if (path.startsWith('/category/')) {
-      const catSlug = path.split('/category/')[1];
-      return { page: 'home' as PageView, category: catSlug, game: null };
-    }
-
-    // Check game
-    if (path.startsWith('/game/')) {
-      const gameSlug = path.split('/game/')[1];
-      const found = findGameBySlug(gameSlug, allGames);
-      if (found) {
-        return { page: 'game' as PageView, category: null, game: found };
-      } else {
-        return { page: 'not-found' as PageView, category: null, game: null };
-      }
-    }
-
-    return { page: 'not-found' as PageView, category: null, game: null };
-  };
-
   const navigateTo = (page: string, extra?: string | null) => {
-    const targetUrl = getPageUrl(page, extra, games);
-    
-    // Push the state into browser history
-    window.history.pushState(null, '', targetUrl);
+    let parsedPage: PageView = 'home';
+    let category: string | null = null;
+    let game: Game | null = null;
+    let scrollTo: string | null = null;
+    let openSearch = false;
 
-    // Sync state
-    const { page: parsedPage, category, game, scrollTo, openSearch } = parsePathname(
-      targetUrl,
-      games
-    );
+    const lowerPage = page.toLowerCase();
+
+    if (lowerPage === 'home') {
+      parsedPage = 'home';
+    } else if (lowerPage === 'games') {
+      parsedPage = 'home';
+    } else if (lowerPage === 'categories') {
+      parsedPage = 'home';
+      scrollTo = 'categories-grid';
+    } else if (lowerPage === 'trending') {
+      parsedPage = 'home';
+      scrollTo = 'trending-section';
+    } else if (lowerPage === 'featured') {
+      parsedPage = 'home';
+      scrollTo = 'featured-section';
+    } else if (lowerPage === 'upcoming') {
+      parsedPage = 'home';
+      scrollTo = 'upcoming-section';
+    } else if (lowerPage === 'search') {
+      parsedPage = 'home';
+      openSearch = true;
+    } else if (lowerPage === 'category') {
+      parsedPage = 'home';
+      category = extra || null;
+    } else if (lowerPage === 'game') {
+      parsedPage = 'game';
+      if (extra) {
+        const found = findGameBySlug(extra, games);
+        if (found) {
+          game = found;
+        } else {
+          parsedPage = 'not-found';
+        }
+      }
+    } else {
+      parsedPage = page as PageView;
+    }
 
     setActivePage(parsedPage);
     setSelectedCategory(category);
@@ -309,41 +267,7 @@ export default function App() {
     };
   }, []);
 
-  // Sync URL state dynamically on load and on history navigation
-  useEffect(() => {
-    if (!isDataReady || games.length === 0) return;
 
-    const handleUrlChange = () => {
-      const { page, category, game, scrollTo, openSearch } = parsePathname(
-        window.location.pathname,
-        games
-      );
-
-      setActivePage(page);
-      setSelectedCategory(category);
-      setActiveGameToPlay(game);
-
-      if (openSearch) {
-        setSearchModalOpen(true);
-      }
-
-      if (scrollTo) {
-        setTimeout(() => {
-          const el = document.getElementById(scrollTo);
-          if (el) {
-            el.scrollIntoView({ behavior: 'smooth' });
-          }
-        }, 150);
-      }
-    };
-
-    handleUrlChange();
-
-    window.addEventListener('popstate', handleUrlChange);
-    return () => {
-      window.removeEventListener('popstate', handleUrlChange);
-    };
-  }, [isDataReady, games]);
 
   // Update favicon if set in settings
   useEffect(() => {
@@ -365,7 +289,7 @@ export default function App() {
     
     let title = `Play Free Online Games | ${websiteName}`;
     let description = settings.heroSubtitle || `Play hundreds of free, instant web games directly in your browser with zero downloads and ultra-low latency on ${websiteName}.`;
-    let canonical = window.location.origin + getPageUrl(activePage, selectedCategory || (activeGameToPlay ? getGameSlug(activeGameToPlay, games) : null), games);
+    let canonical = window.location.origin;
     let ogImage = settings.heroBgImage;
     let noindex = false;
 
