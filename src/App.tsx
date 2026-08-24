@@ -51,8 +51,11 @@ import { CommunityGuidelinesPage } from './components/pages/CommunityGuidelinesP
 import { GameSubmissionPolicyPage } from './components/pages/GameSubmissionPolicyPage';
 import { DMCAPage } from './components/pages/DMCAPage';
 import { CopyrightRemovalPage } from './components/pages/CopyrightRemovalPage';
+import { NotFoundPage } from './components/pages/NotFoundPage';
 import { AdminLogin } from './components/admin/AdminLogin';
 import { AdminDashboard } from './components/admin/AdminDashboard';
+import { getGameSlug, findGameBySlug } from './utils/slug';
+import { getPageUrl, updatePageMeta } from './utils/seo';
 import {
   Flame,
   Sparkles,
@@ -183,6 +186,113 @@ export default function App() {
     }
   };
 
+  const parsePathname = (pathname: string, allGames: Game[]) => {
+    const path = pathname.toLowerCase().replace(/\/+$/, '') || '/';
+    
+    if (path === '' || path === '/') {
+      return { page: 'home' as PageView, category: null, game: null };
+    }
+    if (path === '/games') {
+      return { page: 'home' as PageView, category: null, game: null };
+    }
+    if (path === '/categories') {
+      return { page: 'home' as PageView, category: null, game: null, scrollTo: 'categories-grid' };
+    }
+    if (path === '/trending') {
+      return { page: 'home' as PageView, category: null, game: null, scrollTo: 'trending-section' };
+    }
+    if (path === '/featured') {
+      return { page: 'home' as PageView, category: null, game: null, scrollTo: 'featured-section' };
+    }
+    if (path === '/upcoming') {
+      return { page: 'home' as PageView, category: null, game: null, scrollTo: 'upcoming-section' };
+    }
+    if (path === '/search') {
+      return { page: 'home' as PageView, category: null, game: null, openSearch: true };
+    }
+    if (path === '/about') {
+      return { page: 'about' as PageView, category: null, game: null };
+    }
+    if (path === '/contact') {
+      return { page: 'contact' as PageView, category: null, game: null };
+    }
+    if (path === '/privacy-policy') {
+      return { page: 'privacy' as PageView, category: null, game: null };
+    }
+    if (path === '/terms-and-conditions') {
+      return { page: 'terms' as PageView, category: null, game: null };
+    }
+    if (path === '/community-guidelines') {
+      return { page: 'community-guidelines' as PageView, category: null, game: null };
+    }
+    if (path === '/submission-policy') {
+      return { page: 'submission-policy' as PageView, category: null, game: null };
+    }
+    if (path === '/dmca') {
+      return { page: 'dmca' as PageView, category: null, game: null };
+    }
+    if (path === '/copyright-removal') {
+      return { page: 'copyright-removal' as PageView, category: null, game: null };
+    }
+    if (path === '/developer-submission') {
+      return { page: 'submission' as PageView, category: null, game: null };
+    }
+    if (path === '/admin') {
+      return { page: 'admin' as PageView, category: null, game: null };
+    }
+
+    // Check category
+    if (path.startsWith('/category/')) {
+      const catSlug = path.split('/category/')[1];
+      return { page: 'home' as PageView, category: catSlug, game: null };
+    }
+
+    // Check game
+    if (path.startsWith('/game/')) {
+      const gameSlug = path.split('/game/')[1];
+      const found = findGameBySlug(gameSlug, allGames);
+      if (found) {
+        return { page: 'game' as PageView, category: null, game: found };
+      } else {
+        return { page: 'not-found' as PageView, category: null, game: null };
+      }
+    }
+
+    return { page: 'not-found' as PageView, category: null, game: null };
+  };
+
+  const navigateTo = (page: string, extra?: string | null) => {
+    const targetUrl = getPageUrl(page, extra, games);
+    
+    // Push the state into browser history
+    window.history.pushState(null, '', targetUrl);
+
+    // Sync state
+    const { page: parsedPage, category, game, scrollTo, openSearch } = parsePathname(
+      targetUrl,
+      games
+    );
+
+    setActivePage(parsedPage);
+    setSelectedCategory(category);
+    setActiveGameToPlay(game);
+
+    if (openSearch) {
+      setSearchModalOpen(true);
+    }
+
+    if (scrollTo) {
+      setTimeout(() => {
+        const el = document.getElementById(scrollTo);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   useEffect(() => {
     loadAllData();
     setRecentlyPlayedList(getRecentlyPlayed());
@@ -194,26 +304,46 @@ export default function App() {
       }
     });
 
-    // Check URL for /admin or #admin
-    const checkAdminRoute = () => {
-      const path = window.location.pathname.toLowerCase();
-      const hash = window.location.hash.toLowerCase();
-      if (path.includes('/admin') || hash.includes('admin')) {
-        setActivePage('admin');
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  // Sync URL state dynamically on load and on history navigation
+  useEffect(() => {
+    if (!isDataReady || games.length === 0) return;
+
+    const handleUrlChange = () => {
+      const { page, category, game, scrollTo, openSearch } = parsePathname(
+        window.location.pathname,
+        games
+      );
+
+      setActivePage(page);
+      setSelectedCategory(category);
+      setActiveGameToPlay(game);
+
+      if (openSearch) {
+        setSearchModalOpen(true);
+      }
+
+      if (scrollTo) {
+        setTimeout(() => {
+          const el = document.getElementById(scrollTo);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 150);
       }
     };
 
-    checkAdminRoute();
+    handleUrlChange();
 
-    window.addEventListener('popstate', checkAdminRoute);
-    window.addEventListener('hashchange', checkAdminRoute);
-
+    window.addEventListener('popstate', handleUrlChange);
     return () => {
-      unsubscribe();
-      window.removeEventListener('popstate', checkAdminRoute);
-      window.removeEventListener('hashchange', checkAdminRoute);
+      window.removeEventListener('popstate', handleUrlChange);
     };
-  }, []);
+  }, [isDataReady, games]);
 
   // Update favicon if set in settings
   useEffect(() => {
@@ -229,11 +359,73 @@ export default function App() {
     }
   }, [settings.faviconUrl]);
 
-  // Handle Play Game Trigger
+  // Update page SEO metadata dynamically
+  useEffect(() => {
+    const websiteName = settings.websiteName || 'GAMES TONIC';
+    
+    let title = `Play Free Online Games | ${websiteName}`;
+    let description = settings.heroSubtitle || `Play hundreds of free, instant web games directly in your browser with zero downloads and ultra-low latency on ${websiteName}.`;
+    let canonical = window.location.origin + getPageUrl(activePage, selectedCategory || (activeGameToPlay ? getGameSlug(activeGameToPlay, games) : null), games);
+    let ogImage = settings.heroBgImage;
+    let noindex = false;
+
+    if (activePage === 'game' && activeGameToPlay) {
+      title = `${activeGameToPlay.title} - Play Free Online | ${websiteName}`;
+      description = activeGameToPlay.description;
+      ogImage = activeGameToPlay.thumbnail;
+    } else if (selectedCategory) {
+      const catObj = categories.find(c => c.slug.toLowerCase() === selectedCategory.toLowerCase());
+      const catName = catObj ? catObj.name : selectedCategory;
+      title = `${catName} Games - Play Free Online | ${websiteName}`;
+      description = `Play the best free online ${catName} games on ${websiteName}. Click to play immediately with zero downloads!`;
+    } else if (activePage === 'about') {
+      title = `About Us | ${websiteName}`;
+      description = `Learn more about our mission, vision, and the premium HTML5 gaming portal team behind ${websiteName}.`;
+    } else if (activePage === 'contact') {
+      title = `Contact Us | ${websiteName}`;
+      description = `Get in touch with ${websiteName} support and partner development team. We welcome your game submissions!`;
+    } else if (activePage === 'privacy') {
+      title = `Privacy Policy | ${websiteName}`;
+      description = `Read our Privacy Policy to understand how we collect, protect, and handle data on ${websiteName}.`;
+    } else if (activePage === 'terms') {
+      title = `Terms and Conditions | ${websiteName}`;
+      description = `Read our Terms of Service to understand user rules, copyrights, and conditions on ${websiteName}.`;
+    } else if (activePage === 'community-guidelines') {
+      title = `Community Guidelines | ${websiteName}`;
+      description = `Read the community behavior guidelines and code of conduct for players and developers on ${websiteName}.`;
+    } else if (activePage === 'submission-policy') {
+      title = `Game Submission Policy | ${websiteName}`;
+      description = `Review terms and quality guidelines for submitting your HTML5 games to the ${websiteName} portal.`;
+    } else if (activePage === 'dmca') {
+      title = `DMCA Policy | ${websiteName}`;
+      description = `Understand the copyright infringement protection, DMCA reporting procedures, and guidelines on ${websiteName}.`;
+    } else if (activePage === 'copyright-removal') {
+      title = `Copyright Removal | ${websiteName}`;
+      description = `Report content copyright issues or ask for game removal on ${websiteName} using our simple contact form.`;
+    } else if (activePage === 'submission') {
+      title = `Developer Game Submission | ${websiteName}`;
+      description = `Submit your HTML5 game to ${websiteName} and get exposed to millions of web gamers worldwide.`;
+    } else if (activePage === 'admin') {
+      title = `Administration Panel | ${websiteName}`;
+      description = `Secure entry point for ${websiteName} website admins.`;
+      noindex = true;
+    } else if (activePage === 'not-found') {
+      title = `Page Not Found | ${websiteName}`;
+      description = `The page or game you are looking for does not exist on ${websiteName}.`;
+      noindex = true;
+    }
+
+    updatePageMeta({
+      title,
+      description,
+      canonical,
+      ogImage,
+      noindex
+    }, activePage === 'game' ? activeGameToPlay : null);
+  }, [activePage, selectedCategory, activeGameToPlay, settings, categories, games]);
+
   const handlePlayGame = (game: Game) => {
-    setActiveGameToPlay(game);
-    setActivePage('game');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    navigateTo('game', getGameSlug(game, games));
     setTimeout(() => {
       setRecentlyPlayedList(getRecentlyPlayed());
     }, 500);
@@ -274,11 +466,18 @@ export default function App() {
         settings={settings}
         activePage={activePage}
         setActivePage={(page) => {
-          setActivePage(page);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+          navigateTo(page);
         }}
-        onOpenSearch={() => setSearchModalOpen(true)}
-        onSelectCategory={(catSlug) => setSelectedCategory(catSlug)}
+        onOpenSearch={() => {
+          navigateTo('search');
+        }}
+        onSelectCategory={(catSlug) => {
+          if (catSlug) {
+            navigateTo('category', catSlug);
+          } else {
+            navigateTo('home');
+          }
+        }}
         recentlyPlayedCount={recentlyPlayedList.length}
         onOpenRecentlyPlayed={() => setRecentDrawerOpen(true)}
       />
@@ -321,7 +520,7 @@ export default function App() {
                   </div>
                 </div>
                 <button
-                  onClick={() => setSelectedCategory(null)}
+                  onClick={() => navigateTo('home')}
                   className="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs"
                 >
                   Show All Games
@@ -473,13 +672,11 @@ export default function App() {
             networkAds={networkAds}
             settings={settings}
             onBack={() => {
-              setActivePage('home');
-              setActiveGameToPlay(null);
+              navigateTo('home');
             }}
             onSelectGame={(g) => handlePlayGame(g)}
-            onNavigate={(page) => {
-              setActivePage(page);
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+            onNavigate={(page, extra) => {
+              navigateTo(page, extra);
             }}
           />
         )}
@@ -488,10 +685,9 @@ export default function App() {
         {activePage === 'about' && (
           <AboutUsPage
             settings={settings}
-            onBack={() => setActivePage('home')}
+            onBack={() => navigateTo('home')}
             onNavigate={(p) => {
-              setActivePage(p);
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              navigateTo(p);
             }}
           />
         )}
@@ -499,10 +695,9 @@ export default function App() {
         {activePage === 'community-guidelines' && (
           <CommunityGuidelinesPage
             settings={settings}
-            onBack={() => setActivePage('home')}
+            onBack={() => navigateTo('home')}
             onNavigate={(p) => {
-              setActivePage(p);
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              navigateTo(p);
             }}
           />
         )}
@@ -510,10 +705,9 @@ export default function App() {
         {activePage === 'submission-policy' && (
           <GameSubmissionPolicyPage
             settings={settings}
-            onBack={() => setActivePage('home')}
+            onBack={() => navigateTo('home')}
             onNavigate={(p) => {
-              setActivePage(p);
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              navigateTo(p);
             }}
           />
         )}
@@ -521,10 +715,9 @@ export default function App() {
         {activePage === 'dmca' && (
           <DMCAPage
             settings={settings}
-            onBack={() => setActivePage('home')}
+            onBack={() => navigateTo('home')}
             onNavigate={(p) => {
-              setActivePage(p);
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              navigateTo(p);
             }}
           />
         )}
@@ -532,27 +725,26 @@ export default function App() {
         {activePage === 'copyright-removal' && (
           <CopyrightRemovalPage
             settings={settings}
-            onBack={() => setActivePage('home')}
+            onBack={() => navigateTo('home')}
             onNavigate={(p) => {
-              setActivePage(p);
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              navigateTo(p);
             }}
             onRefreshData={loadAllData}
           />
         )}
 
         {activePage === 'privacy' && (
-          <PrivacyPolicyPage settings={settings} onBack={() => setActivePage('home')} />
+          <PrivacyPolicyPage settings={settings} onBack={() => navigateTo('home')} />
         )}
 
         {activePage === 'terms' && (
-          <TermsPage settings={settings} onBack={() => setActivePage('home')} />
+          <TermsPage settings={settings} onBack={() => navigateTo('home')} />
         )}
 
         {activePage === 'contact' && (
           <ContactPage
             settings={settings}
-            onBack={() => setActivePage('home')}
+            onBack={() => navigateTo('home')}
             onRefreshData={loadAllData}
           />
         )}
@@ -561,10 +753,9 @@ export default function App() {
           <SubmissionPage
             settings={settings}
             categories={categories}
-            onBack={() => setActivePage('home')}
+            onBack={() => navigateTo('home')}
             onNavigate={(p) => {
-              setActivePage(p);
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              navigateTo(p);
             }}
             onRefreshData={loadAllData}
           />
@@ -587,16 +778,20 @@ export default function App() {
                   await adminLogout();
                   setIsAdminLoggedIn(false);
                 }}
-                onBackToSite={() => setActivePage('home')}
+                onBackToSite={() => navigateTo('home')}
               />
             ) : (
               <AdminLogin
                 settings={settings}
                 onSuccess={() => setIsAdminLoggedIn(true)}
-                onBack={() => setActivePage('home')}
+                onBack={() => navigateTo('home')}
               />
             )}
           </div>
+        )}
+
+        {activePage === 'not-found' && (
+          <NotFoundPage onNavigate={navigateTo} />
         )}
       </main>
 
@@ -610,8 +805,7 @@ export default function App() {
         settings={settings}
         activePage={activePage}
         setActivePage={(page) => {
-          setActivePage(page);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+          navigateTo(page);
         }}
       />
 

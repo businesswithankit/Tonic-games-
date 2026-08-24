@@ -34,7 +34,7 @@ import {
   Minimize2,
   AlertTriangle,
 } from 'lucide-react';
-import { Game, NetworkAd, PageView, SiteSettings, SponsorAd } from '../../types';
+import { Game, NetworkAd, SiteSettings, SponsorAd } from '../../types';
 import {
   addRecentlyPlayed,
   getRecentlyPlayed,
@@ -45,6 +45,7 @@ import { incrementGameViews } from '../../firebase';
 import { AdSlot } from '../AdSlot';
 import { GameCard } from '../GameCard';
 import { ReportModal } from '../ReportModal';
+import { Breadcrumbs } from '../Breadcrumbs';
 
 interface GamePlayPageProps {
   game: Game;
@@ -54,7 +55,7 @@ interface GamePlayPageProps {
   settings: SiteSettings;
   onBack: () => void;
   onSelectGame: (game: Game) => void;
-  onNavigate: (page: PageView) => void;
+  onNavigate: (page: string, extra?: string | null) => void;
 }
 
 export const GamePlayPage: React.FC<GamePlayPageProps> = ({
@@ -299,18 +300,11 @@ export const GamePlayPage: React.FC<GamePlayPageProps> = ({
           <span>Back to Home</span>
         </button>
 
-        <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-slate-400">
-          <span
-            onClick={onBack}
-            className="hover:text-cyan-400 cursor-pointer transition-colors"
-          >
-            Home
-          </span>
-          <span>/</span>
-          <span className="text-purple-400 uppercase">{game.category}</span>
-          <span>/</span>
-          <span className="text-white truncate max-w-[200px]">{game.title}</span>
-        </div>
+        <Breadcrumbs
+          category={game.category}
+          gameTitle={game.title}
+          onNavigate={onNavigate}
+        />
       </div>
 
       {/* Report Modal */}

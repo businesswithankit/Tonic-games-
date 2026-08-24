@@ -148,7 +148,8 @@ export type PageView =
   | 'community-guidelines'
   | 'submission-policy'
   | 'dmca'
-  | 'copyright-removal';
+  | 'copyright-removal'
+  | 'not-found';
 
 export interface RecentPlayItem {
   id: string;
